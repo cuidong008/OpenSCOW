@@ -1,0 +1,29 @@
+# 是否启用作业管理功能
+jobManagement: true
+
+# 是否启用交互式任务功能
+apps: true
+
+loginDesktop:
+  # 是否启用桌面功能。未在登录节点安装 TurboVNC、或未打通 MIS→login 的 root SSH 时，
+  # /api/desktop/listDesktops 会 500；本模板默认关闭，需要图形桌面时再改为 true 并满足上述条件。
+  enabled: false
+
+  # 桌面
+  wms:
+    - name: Xfce
+      wm: xfce
+
+# TurboVNC的安装路径
+turboVNCPath: /opt/TurboVNC
+
+# 主页标题
+homeTitle:
+  defaultText: "Super Computing on Web"
+
+# 主页文本
+homeText:
+  defaultText: "SCOW"
+
+# 是否启用终端功能
+shell: true

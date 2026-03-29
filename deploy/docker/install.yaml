@@ -1,0 +1,32 @@
+# OpenSCOW 部署配置（与本仓库 K8s Slurm + Harbor 配套）
+# 依赖镜像默认从 Docker Hub / ghcr 拉取；内网无法访问时需先同步到 Harbor（见 README「依赖镜像」）。
+
+port: 8001
+basePath: /
+
+image: harbor.aix.com:8443/library/openscow
+imageTag: "1.6.4"
+
+portal:
+  # 默认 ghcr.io；无 ghcr 时请拉到 Harbor 后改此路径
+  novncClientImage: harbor.aix.com:8443/library/novnc-client-docker:master
+
+mis:
+  mysqlImage: harbor.aix.com:8443/library/mysql:8
+  dbPassword: must!chang3this
+
+# 勿启用 log.fluentd：cli 会给所有服务加 fluentd 日志驱动，Docker 会连 127.0.0.1:24224；
+# log 容器尚未就绪时其它容器启动会报：dial tcp 127.0.0.1:24224: connection refused
+log:
+  level: info
+  pretty: false
+
+auth:
+  redisImage: harbor.aix.com:8443/library/redis:alpine
+
+audit:
+  mysqlImage: harbor.aix.com:8443/library/mysql:8
+  dbPassword: must!chang3this
+
+gateway:
+  proxyReadTimeout: 36000s

@@ -1,0 +1,57 @@
+# Bitnami OpenLDAP（与 examples/openldap-bitnami-minimal.yaml、helm/slurm values 中 SSSD 段一致）
+# - 根后缀: dc=example,dc=org（LDAP_ROOT）
+# - 管理账号: cn=admin,dc=example,dc=org（LDAP_ADMIN_USERNAME=admin）
+# - 管理密码: 与 LDAP_ADMIN_PASSWORD 一致，示例默认为 admin（生产务必修改）
+#
+# OpenSCOW 若用 Docker Compose 跑在宿主机：url 勿用 localhost，用宿主机内网 IP。
+# Slurm Login 上 SSSD 当前示例为 ldaps://172.16.84.71:636；OpenSCOW 可先用 ldap://389，
+# 若目录要求 TLS，再改为 ldaps://172.16.84.71:636 并在 OpenSCOW/网关侧处理证书信任。
+
+authType: ldap
+
+tokenTimeoutSeconds: 36000
+
+ldap:
+  url: ldap://172.16.84.71:389
+  # 必须是「目录管理员 / 服务账号」，用于登录前搜索用户；勿填门户登录用户 user01
+  bindDN: cn=admin,dc=example,dc=org
+  bindPassword: "admin"
+  searchBase: "dc=example,dc=org"
+  userFilter: "(uid=*)"
+
+  attrs:
+    uid: uid
+    name: cn
+    mail: mail
+
+  addUser:
+    # 与 helm/slurm/values.yaml 中 ldap_user_search_base 一致（ou=users）
+    userBase: "ou=users,dc=example,dc=org"
+    # 与 Slurm 共享家目录约定一致；请与实际 LDAP homeDirectory / BeeGFS 挂载一致
+    homeDir: /home/{{ userId }}
+    userIdDnKey: uid
+    groupStrategy: newGroupPerUser
+
+    newGroupPerUser:
+      # 若目录中尚未建 ou=groups，可在 LDAP 中先建该 OU，或改为 "dc=example,dc=org"
+      groupBase: "ou=groups,dc=example,dc=org"
+      groupIdDnKey: cn
+
+ui:
+  default:
+    backgroundImagePath: "./assets/background.png"
+    backgroundFallbackColor: "#9a0000"
+    logoType: "dark"
+
+    slogan:
+      color: "white"
+      title:
+        i18n:
+          default: "开源算力中心门户和管理平台"
+          en: "Open-source Compute Center Portal and Management Platform"
+          zh_cn: "开源算力中心门户和管理平台"
+      texts:
+        - i18n:
+            default: "图形化界面，使用方便"
+            en: "Graphical user interface, user-friendly"
+            zh_cn: "图形化界面，使用方便"

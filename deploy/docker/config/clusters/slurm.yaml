@@ -1,0 +1,48 @@
+# 集群 ID 文件名即为集群 ID，例如本文件对应集群 ID: slurm
+#
+# =============================================================================
+# 重要：OpenSCOW 跑在哪里，就用哪一类地址
+# =============================================================================
+# `./cli compose up -d` 会在「当前机器」上起 Docker 容器；这些容器默认 **没有**
+# Kubernetes CoreDNS，一般 **解析不了** `*.svc.cluster.local`，也 **未必** 能访问 Service 网段。
+#
+# A) OpenSCOW 在集群外（本机 Docker Compose）——下面 **默认** 使用可从宿主机访问的形式：
+#    - adapter：ClusterIP:端口（须从跑 OpenSCOW 的那台机 `nc -zv <IP> 8972` 能通；不通请给 adapter 加 NodePort）
+#    - login：节点 IP + NodePort（OpenSCOW 的 address 支持 `host:port`，见 libs/ssh `address.split(":")`）
+#
+#    **同机特例**：OpenSCOW Docker 与 K8s 节点是 **同一台物理机** 时，容器内访问「本机局域网
+#    IP:NodePort」（如 172.16.84.71:30972）常会 TCP 失败（portal 报 UNAVAILABLE、容器内 nc exit=1），
+#    宿主机上 nc 却正常。请把 adapterUrl（及必要时 loginNodes.address）改为 **docker0 在宿主机上的
+#    地址**（多数为 172.17.0.1）。adapter 使用 hostNetwork 监听宿主机 8972 时，用 `172.17.0.1:8972`；
+#    仍用 NodePort 时用 `172.17.0.1:30972` 或 `<节点IP>:30972`。
+#
+# B) OpenSCOW 在集群内 Pod（与 slurm 同集群）——请改为注释块「集群内」中的 DNS 形式。
+#
+# 更新 login 前可执行：kubectl -n slurm get svc slurm-login-slinky slurm-login-gpu -o wide（adapter 默认见 deploy/scow-slurm-adapter/docker-compose.yml）
+# =============================================================================
+
+displayName: slurm-k8s
+
+# --- A) 集群外 Docker Compose（默认；节点 IP / ClusterIP 请按你环境 kubectl 结果核对）---
+loginNodes:
+  - name: login-slinky
+    address: "172.16.84.71:30122"
+  - name: login-gpu
+    address: "172.16.84.71:30123"
+
+# adapter：
+#   - adapter 用本机 Docker Compose 映射 8972 时：adapterUrl 多为 docker0 网关 172.17.0.1:8972（同机）或 节点IP:8972。
+#   - adapter 在 K8s 且 Service 为 NodePort 30972（见 deploy/scow-slurm-adapter/scow-slurm-adapter.k8s.yaml）时：
+#     用「mis-server / portal-server 容器内 nc -zv 能通的」主机:30972（勿写 127.0.0.1）。
+#     同机 K8s 时若 172.17.0.1:30972 不通可试节点局域网 IP（与 loginNodes 一致）；反之亦然。
+# **改 adapterUrl 后须重启 mis-server 与 portal-server**（MIS 创建账户走 mis-server → adapter，只重启 portal 不够）。
+# 若 getClusterInfo 仍 500：adapter 日志应有「scontrol show partition OK」；需 slurm.conf、slurm.key/jwt.key、sackd。
+adapterUrl: "172.16.84.71:30972"
+
+# --- B) 集群内 Pod 部署 OpenSCOW 时，改用下面（并注释掉上面 loginNodes / adapterUrl）---
+# loginNodes:
+#   - name: login-slinky
+#     address: slurm-login-slinky.slurm.svc.cluster.local
+#   - name: login-gpu
+#     address: slurm-login-gpu.slurm.svc.cluster.local
+# adapterUrl: "scow-slurm-adapter.slurm.svc.cluster.local:8972"
