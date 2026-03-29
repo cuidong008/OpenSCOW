@@ -21,17 +21,33 @@
  */
 
 import { execSync } from "node:child_process";
-import { writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 
 let outputFile = process.argv[2] || "version.json";
 
-const exec = (cmd) => execSync(cmd, { encoding: "utf-8" });
+function readPackageVersion() {
+  return JSON.parse(readFileSync("package.json", "utf-8")).version || "0.0.0";
+}
 
-const tags = exec("git tag --points-at HEAD").split("\n");
-const commit = exec("git rev-parse HEAD").trim();
+let tag;
+let commit;
+
+try {
+  const exec = (cmd) =>
+    execSync(cmd, { encoding: "utf-8", stdio: ["ignore", "pipe", "ignore"] });
+  const tags = exec("git tag --points-at HEAD")
+    .split("\n")
+    .map((t) => t.trim())
+    .filter(Boolean);
+  tag = tags[0];
+  commit = exec("git rev-parse HEAD").trim();
+} catch {
+  tag = readPackageVersion();
+  commit = "unknown";
+}
 
 const versionObject = {
-  tag: tags[0] || undefined,
+  tag: tag || readPackageVersion(),
   commit,
 };
 

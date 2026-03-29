@@ -138,6 +138,7 @@ wss.on("connection", async (ws: AliveCheckedWebSocket, req) => {
       users: [userInfo.identityId], accounts: [],
       states: ["RUNNING"],
     },
+    jobTypes: [],
   }).then((resp) => resp.jobs);
 
   const currentJobInfo = runningJobsInfo.find((jobInfo) => String(jobInfo.jobId) === jobId);

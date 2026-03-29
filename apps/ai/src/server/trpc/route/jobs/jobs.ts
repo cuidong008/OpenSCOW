@@ -153,6 +153,7 @@ procedure
         filter: {
           users: [userId], accounts: [],states: [],jobName:trainJobName,
         },
+        jobTypes: [],
       }).then((resp) => resp.jobs);
 
       if (existingJobName.length) {

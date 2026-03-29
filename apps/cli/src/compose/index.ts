@@ -286,6 +286,8 @@ export const createComposeSpec = (config: InstallConfigSchema) => {
         [SSH_DIR]: "/root/.ssh",
         "portal_data":"/var/lib/scow/portal",
       },
+      // 须先起 mis-server，否则 portal 启动阶段解析不到 mis-server（嵌入式 DNS 无可用任务时会失败）
+      depends_on: config.mis ? ["mis-server"] : undefined,
     });
 
     addService("portal-web", {
@@ -312,6 +314,7 @@ export const createComposeSpec = (config: InstallConfigSchema) => {
         "/etc/hosts": "/etc/hosts",
         "./config": configPath,
       },
+      depends_on: config.mis ? ["mis-server"] : undefined,
     });
 
     addService("novnc", {
@@ -339,6 +342,8 @@ export const createComposeSpec = (config: InstallConfigSchema) => {
         "./config": "/etc/scow",
         [SSH_DIR]: "/root/.ssh",
       },
+      // 先起 MySQL，避免 mis-server 反复退出导致嵌入式 DNS 无法解析服务名 mis-server
+      depends_on: ["db"],
     });
 
     addService("mis-web", {

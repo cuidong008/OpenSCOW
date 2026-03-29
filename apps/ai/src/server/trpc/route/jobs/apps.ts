@@ -318,6 +318,7 @@ export const createAppSession = procedure
       filter: {
         users: [userId], accounts: [],states: [],jobName:appJobName,
       },
+      jobTypes: [],
     }).then((resp) => resp.jobs);
 
     if (existingJobName.length) {
@@ -801,6 +802,7 @@ export const listAppSessions =
             users: [userId], accounts: [],
             states: ["RUNNING", "PENDING", "FAILED", "TIMEOUT", "COMPLETED"],
           },
+          jobTypes: [],
         }).then((resp) => resp.jobs);
 
         const runningJobInfoMap = runningJobsInfo.reduce((prev, curr) => {
