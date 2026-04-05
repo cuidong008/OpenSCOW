@@ -38,6 +38,8 @@ gateway:
 #   与 SCOW 同 compose：http://user-sync:8080/v1/users
 #   映射到宿主机：http://<宿主机IP>:18001/v1/users（见 portMappings.userSync）
 # user-sync 改密接口需连 Auth：compose 会自动注入 AUTH_INTERNAL_URL（与 mis-web 一致，如 http://auth:5000）。
+# 启用 userSync 时，compose 会将 userSyncApiToken 同时注入为 Auth 的 TRUSTED_SESSION_ISSUE_TOKEN，
+# 用于 user-sync POST /v1/sso/session-token → Auth 代签发浏览器会话（aix 换票进 MIS）；勿对公网暴露 user-sync 端口。
 userSync:
     userSyncApiToken: "aix-e-me-to-slurm-strong-big-secret"
 #   # 若 deploy/docker/config/mis.yaml 等中启用了 scowApi 并填写了 apiToken，此处须与之一致：

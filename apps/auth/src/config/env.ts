@@ -42,6 +42,9 @@ export const config = envConfig({
 
   EXTRA_ALLOWED_CALLBACK_HOSTNAMES: str({ desc: "额外的信任回调域名，以逗号分隔", default: "" }),
 
+  /** 与 user-sync 的 USER_SYNC_API_TOKEN 一致时，允许内网 POST /internal/trusted/session-token 代签发浏览器会话 token */
+  TRUSTED_SESSION_ISSUE_TOKEN: str({ desc: "受信系统签发 SCOW 会话 token 的共享密钥", default: "" }),
+
   PUBLIC_PATH: str({ desc: "静态文件路径前缀。以/开头，以/结尾", default: "/__public__/" }),
 });
 

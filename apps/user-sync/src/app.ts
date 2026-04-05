@@ -15,6 +15,7 @@ import fastify, { FastifyBaseLogger, FastifyInstance } from "fastify";
 import { config } from "src/config/env";
 import { registerHealthRoutes } from "src/routes/health";
 import { registerReconciliationRoutes } from "src/routes/reconciliation";
+import { registerV1SsoRoutes } from "src/routes/v1/sso";
 import { registerV1UserRoutes } from "src/routes/v1/users";
 import { logger } from "src/utils/logger";
 
@@ -54,6 +55,7 @@ export function buildApp(): FastifyInstance {
 
   void server.register(registerHealthRoutes);
   void server.register(registerV1UserRoutes);
+  void server.register(registerV1SsoRoutes);
   void server.register(registerReconciliationRoutes);
 
   return server;

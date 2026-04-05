@@ -22,11 +22,13 @@ import { logoutRoute } from "src/routes/logout";
 
 import { authRoute } from "./auth";
 import { authCallbackRoute } from "./callback";
+import { trustedSessionTokenRoute } from "./trustedSessionToken";
 import { validateTokenRoute } from "./validateToken";
 
 export const routes = [
   authRoute,
   authCallbackRoute,
+  trustedSessionTokenRoute,
   validateTokenRoute,
   createUserRoute,
   deleteUserRoute,
@@ -37,4 +39,5 @@ export const routes = [
   changeEmailRoute,
   changeNameRoute,
   checkPasswordRoute,
+  trustedSessionTokenRoute,
 ];

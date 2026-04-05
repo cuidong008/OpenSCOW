@@ -241,6 +241,9 @@ export const createComposeSpec = (config: InstallConfigSchema) => {
         "SCOW_LAUNCH_APP": "auth",
         "BASE_PATH": BASE_PATH,
         "PORTAL_BASE_PATH": portalBasePath,
+        ...(config.userSync
+          ? { TRUSTED_SESSION_ISSUE_TOKEN: config.userSync.userSyncApiToken }
+          : {}),
         ...serviceLogEnv,
         ...nodeOptions ? { NODE_OPTIONS: nodeOptions } : {},
       },
