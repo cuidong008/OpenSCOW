@@ -53,10 +53,10 @@ const processGetJobsResult = (cluster: string, result: GetJobsResponse) => {
     });
   });
 
-  // sort by end time
+  // sort by end time（adapter 可能省略 endTime，按 0 参与排序）
   jobs.sort((a, b) => {
-    const endTimeA = new Date(a.endTime).getTime();
-    const endTimeB = new Date(b.endTime).getTime();
+    const endTimeA = a.endTime != null ? new Date(a.endTime).getTime() : 0;
+    const endTimeB = b.endTime != null ? new Date(b.endTime).getTime() : 0;
     return endTimeA - endTimeB;
   });
 
