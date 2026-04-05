@@ -59,7 +59,7 @@ kubectl get svc -n slurm slurm-login-slinky slurm-login-gpu -o wide
 **说明：**
 
 - **仅在 OpenSCOW 跑在集群内 Pod 时**，才适合用 `*.svc.cluster.local`（集群 DNS）。
-- **adapter** 默认用 `**deploy/scow-slurm-adapter/docker-compose.yml`** 在宿主机映射 **8972**；OpenSCOW 在同机 Docker 时 `adapterUrl` 多为 `**172.17.0.1:8972`**。若仍用 K8s 部署 adapter，见 `deploy/scow-slurm-adapter/scow-slurm-adapter.k8s.yaml`（NodePort 等）。
+- **adapter** 默认用 `**deploy/scow-slurm-adapter/docker-compose.yml`** 在宿主机映射 **8972**；OpenSCOW 在同机 Docker 时 `adapterUrl` 多为 `**172.17.0.1:8972`**。若仍用 K8s 部署 adapter，见 `deploy/scow-slurm-adapter/k8s/`（`kubectl apply -k`，NodePort 等见 `service.yaml`）与 `deploy/scow-slurm-adapter/README.md`。
 
 ## 部署拓扑与 `loginNodes` / `adapterUrl`
 

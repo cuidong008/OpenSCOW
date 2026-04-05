@@ -12,8 +12,8 @@
 
 "use client";
 import { UserInfo } from "@scow/lib-web/build/layouts/base/types";
+import { appendAuthCallbackQuery } from "@scow/lib-web/build/utils/appendAuthCallbackQuery";
 import { Typography } from "antd";
-import { join } from "path";
 import { antdBreakpoints } from "src/layouts/base/constants";
 import { styled } from "styled-components";
 
@@ -49,7 +49,7 @@ export const JumpToAnotherLink: React.FC<JumpToAnotherLinkProps> = ({ user, link
     <HeaderItem>
       {/* Cannot use Link because links adds BASE_PATH, but MIS_URL already contains it */}
       <Typography.Link href={user
-        ? join(link, "/api/auth/callback?token=" + user.token)
+        ? appendAuthCallbackQuery(link, user.token)
         : link}
       >
         {icon}

@@ -10,7 +10,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
-import { Card, Space, Statistic } from "antd";
+import { Card, Space, Statistic, theme } from "antd";
 import React from "react";
 import { prefix, useI18nTranslateToString } from "src/i18n";
 import { styled } from "styled-components"; ;
@@ -45,6 +45,7 @@ export const StatisticCard: React.FC<Props> = ({ title, newAddValue = 0,
   totalValue = 0, loading, icon, iconColor, precision = 0 }) =>
 {
   const t = useI18nTranslateToString();
+  const { token } = theme.useToken();
 
   return (
     <Card bodyStyle={{ display: "flex", flexDirection: "row", justifyContent: "space-between", padding: "15px" } }>
@@ -56,7 +57,7 @@ export const StatisticCard: React.FC<Props> = ({ title, newAddValue = 0,
             value={newAddValue}
             precision={precision}
             loading={loading}
-            valueStyle={{ color: "#94070A" }}
+            valueStyle={{ color: token.colorText }}
           />
         </Space>
       </Container>

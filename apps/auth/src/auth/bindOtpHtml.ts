@@ -13,9 +13,9 @@
 import { getCommonConfig, getSystemLanguageConfig } from "@scow/config/build/common";
 import { DEFAULT_PRIMARY_COLOR } from "@scow/config/build/ui";
 import { getCurrentLanguageId } from "@scow/lib-server";
+import { joinUrlPath } from "@scow/utils";
 import { FastifyReply, FastifyRequest } from "fastify";
-import { join } from "path";
-import { config, FAVICON_URL } from "src/config/env";
+import { config } from "src/config/env";
 import { uiConfig } from "src/config/ui";
 import { AuthTextsType, languages } from "src/i18n";
 import { getHostname } from "src/utils/getHostname";
@@ -43,8 +43,8 @@ export async function renderBindOtpHtml(
 
   return rep.status(err ? 401 : 200).view("/otp/bindOtp.liquid", {
     authTexts: authTexts,
-    cssUrl: join(config.BASE_PATH, config.AUTH_BASE_PATH, "/public/assets/tailwind.min.css"),
-    faviconUrl: join(config.BASE_PATH, FAVICON_URL),
+    cssUrl: joinUrlPath(config.BASE_PATH, config.AUTH_BASE_PATH, "public/assets/tailwind.min.css"),
+    faviconUrl: joinUrlPath(config.BASE_PATH, config.AUTH_BASE_PATH, "public/assets/favicon.svg"),
     backgroundColor: (hostname && uiConfig.primaryColor?.hostnameMap?.[hostname])
       ?? uiConfig.primaryColor?.defaultColor ?? DEFAULT_PRIMARY_COLOR,
     err,
@@ -53,7 +53,7 @@ export async function renderBindOtpHtml(
      ?? (hostname && uiConfig?.footer?.hostnameTextMap?.[hostname])
      ?? uiConfig?.footer?.defaultText ?? "",
     ...otp,
-    otpBasePath: join(config.BASE_PATH, config.AUTH_BASE_PATH, "/public/otp"),
+    otpBasePath: joinUrlPath(config.BASE_PATH, config.AUTH_BASE_PATH, "public/otp"),
   });
 
 }

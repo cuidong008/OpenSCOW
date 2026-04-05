@@ -106,12 +106,12 @@ ui:
       color: "white"
       # 登录界面 slogan 标题
       # 可选配置，默认无 slogan 标题
-      # title: "开源算力中心门户和管理平台"
+      # title: "Slurm算力中心门户和管理平台"
       title:
         i18n:
-          default: "开源算力中心门户和管理平台"
-          en: "Open-source Compute Center Portal and Management Platform"
-          zh_cn: "开源算力中心门户和管理平台"
+          default: "Slurm算力中心门户和管理平台"
+          en: "Slurm Compute Center Portal and Management Platform"
+          zh_cn: "Slurm算力中心门户和管理平台"
       texts:
         - i18n:
             default: "图形化界面，使用方便"

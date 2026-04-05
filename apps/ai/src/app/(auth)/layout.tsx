@@ -104,7 +104,6 @@ export default function Layout(
           } */}
         </>
       )}
-      versionTag={publicConfig.VERSION_TAG}
       footerText={footerText}
     >
       <PublicConfigContext.Provider value={{

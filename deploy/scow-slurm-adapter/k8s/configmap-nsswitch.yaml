@@ -1,0 +1,18 @@
+# 可选：若不想把 nsswitch 打进镜像，可挂载覆盖 /etc/nsswitch.conf
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: scow-slurm-adapter-nsswitch
+data:
+  nsswitch.conf: |
+    passwd:         files sss
+    group:          files sss
+    shadow:         files sss
+    gshadow:        files
+    hosts:          files dns
+    networks:       files
+    protocols:      db files
+    services:       db files
+    ethers:         db files
+    rpc:            db files
+    netgroup:       files sss

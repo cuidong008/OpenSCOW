@@ -1,0 +1,124 @@
+# 本地镜像 scow-slurm-adapter-sssd:local + Secret：sssd.conf + Slurm（与 docker-compose.slurm.yml 一致）。
+# Slurm：Secret `scow-slurm-adapter-slurm` 须含 slurm.conf、munge.key、jwt.key、slurm.key（与 controller 上 /etc/slurm 一致），见 secret-slurm.example.sh。
+# 适用于 ldap_tls_reqcert = never（不校验服务端证书，无需 ldap_tls_cacert / CA Secret）。
+# imagePullPolicy: Never：节点上必须已有该镜像（本机构建或 ctr import）。
+# 若改为 demand 并配置 ldap_tls_cacert，请恢复 ldap-ca 卷与 Secret（见 README）。
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: scow-slurm-adapter
+  labels:
+    app: scow-slurm-adapter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: scow-slurm-adapter
+  template:
+    metadata:
+      labels:
+        app: scow-slurm-adapter
+    spec:
+      # slurm.conf 常见 SlurmctldHost=slurm-controller-0(...)；Pod 内短主机名无 CoreDNS 记录时会解析失败，
+      # Slurm 客户端连不上 slurmctld，适配器可能永远不 listen 8972。将主机名映射到 slurm-controller Service 的 ClusterIP。
+      # IP 须与集群一致：kubectl get svc -n slurm slurm-controller -o jsonpath='{.spec.clusterIP}{"\n"}'
+      hostAliases:
+        - ip: "10.1.223.158"
+          hostnames:
+            - "slurm-controller-0"
+      # 若仅某台 Ubuntu 节点有本地镜像，可取消注释并改为实际节点名：
+      # nodeName: your-ubuntu-node
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+      containers:
+        - name: adapter
+          image: scow-slurm-adapter-sssd:local
+          imagePullPolicy: Never
+          workingDir: /app
+          env:
+            - name: SSSD_SMOKE_USER
+              value: ""
+            - name: SSSD_WAIT_SEC
+              value: "60"
+            - name: ADAPTER_BIN
+              value: "/app/scow-slurm-adapter-amd64"
+            - name: SLURM_CONF
+              value: /etc/slurm/slurm.conf
+            - name: RUNTIME_DIRECTORY
+              value: /run/slurm
+          ports:
+            - name: grpc
+              containerPort: 8972
+          volumeMounts:
+            - name: sssd-conf
+              mountPath: /etc/sssd/sssd.conf
+              subPath: sssd.conf
+              readOnly: true
+            # 勿把 emptyDir 挂整棵 /var/lib/sss：会盖住镜像里 sssd 包创建的 pipes/private 等目录，导致 D-Bus sbus-monitor 无法 bind。
+            - name: sss-db
+              mountPath: /var/lib/sss/db
+            - name: sss-mc
+              mountPath: /var/lib/sss/mc
+            - name: sssd-log
+              mountPath: /var/log/sssd
+            # 适配器按 CWD=/app 读取 config/config.yaml（见 PKUHPC scow-slurm-adapter 部署文档）
+            - name: adapter-config
+              mountPath: /app/config
+              readOnly: true
+            - name: slurm-files
+              mountPath: /etc/slurm/slurm.conf
+              subPath: slurm.conf
+              readOnly: true
+            - name: slurm-files
+              mountPath: /etc/munge/munge.key
+              subPath: munge.key
+              readOnly: true
+            - name: slurm-files
+              mountPath: /etc/slurm/jwt.key
+              subPath: jwt.key
+              readOnly: true
+            - name: slurm-files
+              mountPath: /etc/slurm/slurm.key
+              subPath: slurm.key
+              readOnly: true
+          resources:
+            requests:
+              cpu: "100m"
+              memory: 256Mi
+            limits:
+              memory: 1Gi
+      volumes:
+        - name: sssd-conf
+          secret:
+            secretName: scow-slurm-adapter-sssd
+            items:
+              - key: sssd.conf
+                path: sssd.conf
+            defaultMode: 256
+        - name: sss-db
+          emptyDir: {}
+        - name: sss-mc
+          emptyDir: {}
+        - name: sssd-log
+          emptyDir: {}
+        - name: adapter-config
+          configMap:
+            name: scow-slurm-adapter-config
+        - name: slurm-files
+          secret:
+            secretName: scow-slurm-adapter-slurm
+            defaultMode: 256
+            items:
+              - key: slurm.conf
+                path: slurm.conf
+                mode: 420
+              - key: munge.key
+                path: munge.key
+                mode: 256
+              - key: jwt.key
+                path: jwt.key
+                mode: 256
+              - key: slurm.key
+                path: slurm.key
+                mode: 256

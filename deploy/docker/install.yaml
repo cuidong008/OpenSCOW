@@ -4,8 +4,11 @@
 port: 8001
 basePath: /
 
-image: harbor.aix.com:8443/library/openscow
-imageTag: "1.6.4"
+#image: harbor.aix.com:8443/library/openscow
+#imageTag: "1.6.4"
+
+image: openscow
+imageTag: "local"
 
 portal:
   # 默认 ghcr.io；无 ghcr 时请拉到 Harbor 后改此路径
@@ -30,3 +33,14 @@ audit:
 
 gateway:
   proxyReadTimeout: 36000s
+
+# 外部系统（如 aix）调用的 user-sync HTTP 网关；aix 的 openscow.syncURL 填可访问地址，例如：
+#   与 SCOW 同 compose：http://user-sync:8080/v1/users
+#   映射到宿主机：http://<宿主机IP>:18001/v1/users（见 portMappings.userSync）
+# user-sync 改密接口需连 Auth：compose 会自动注入 AUTH_INTERNAL_URL（与 mis-web 一致，如 http://auth:5000）。
+userSync:
+    userSyncApiToken: "aix-e-me-to-slurm-strong-big-secret"
+#   # 若 deploy/docker/config/mis.yaml 等中启用了 scowApi 并填写了 apiToken，此处须与之一致：
+#   # misScowApiToken: "same-as-mis-scowApi"
+    portMappings:
+      userSync: 18001

@@ -12,9 +12,8 @@
 
 import { changePassword, checkPassword, deleteToken } from "@scow/lib-auth";
 import { OperationResult, OperationType } from "@scow/lib-operation-log";
-import { joinWithUrl } from "@scow/utils";
+import { joinUrlPath, joinWithUrl } from "@scow/utils";
 import { TRPCError } from "@trpc/server";
-import { join } from "path";
 import { deleteUserToken, getUserToken, setUserTokenCookie } from "src/server/auth/cookie";
 import { getUserInfo } from "src/server/auth/server";
 import { validateToken } from "src/server/auth/token";
@@ -116,8 +115,10 @@ export const auth = router({
     .output(z.void())
     .query(async ({ ctx: { req, res } }) => {
 
-      const callbackUrl = `${ config.PROTOCOL || "http"}://${req.headers.host}`
-       + join(BASE_PATH, "/api/auth/callback");
+      const callbackUrl = new URL(
+        joinUrlPath(BASE_PATH || "/", "/api/auth/callback"),
+        `${config.PROTOCOL || "http"}://${req.headers.host}`,
+      ).href;
 
       const target = joinWithUrl(config.AUTH_EXTERNAL_URL,
         `public/auth?callbackUrl=${encodeURIComponent(callbackUrl)}`);

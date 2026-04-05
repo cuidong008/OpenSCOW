@@ -14,10 +14,9 @@ import { RobotOutlined } from "@ant-design/icons";
 import { UiExtensionStore } from "@scow/lib-web/build/extensions/UiExtensionStore";
 import { BaseLayout as LibBaseLayout } from "@scow/lib-web/build/layouts/base/BaseLayout";
 import { HeaderNavbarLink } from "@scow/lib-web/build/layouts/base/header";
-import { join } from "path";
+import { appendAuthCallbackQuery } from "@scow/lib-web/build/utils/appendAuthCallbackQuery";
 import { PropsWithChildren } from "react";
 import { useStore } from "simstate";
-import { LanguageSwitcher } from "src/components/LanguageSwitcher";
 import { useI18n, useI18nTranslateToString } from "src/i18n";
 import { MisIcon } from "src/icons/headerIcons/headerIcons";
 import { userRoutes } from "src/layouts/routes";
@@ -28,11 +27,9 @@ import { publicConfig } from "src/utils/config";
 
 interface Props {
   footerText: string;
-  versionTag: string | undefined;
-  initialLanguage: string;
 }
 
-export const BaseLayout = ({ footerText, versionTag, initialLanguage, children }: PropsWithChildren<Props>) => {
+export const BaseLayout = ({ footerText, children }: PropsWithChildren<Props>) => {
 
   const userStore = useStore(UserStore);
 
@@ -44,8 +41,6 @@ export const BaseLayout = ({ footerText, versionTag, initialLanguage, children }
 
   const t = useI18nTranslateToString();
   const languageId = useI18n().currentLanguage.id;
-
-  const systemLanguageConfig = publicConfig.SYSTEM_LANGUAGE_CONFIG;
 
   const routes = userRoutes(
     userStore.user, currentClusters, defaultCluster, loginNodes,
@@ -62,7 +57,7 @@ export const BaseLayout = ({ footerText, versionTag, initialLanguage, children }
   };
 
   const toCallbackPage = (url: string) => userStore.user
-    ? join(url,`/api/auth/callback?token=${userStore.user.token}`)
+    ? appendAuthCallbackQuery(url, userStore.user.token)
     : url;
 
   const navbarLinks: HeaderNavbarLink[] = [];
@@ -92,18 +87,11 @@ export const BaseLayout = ({ footerText, versionTag, initialLanguage, children }
       user={userStore.user}
       routes={routes}
       footerText={footerText}
-      versionTag={versionTag}
-      basePath={publicConfig.BASE_PATH}
       userLinks={publicConfig.USER_LINKS}
       languageId={languageId}
       extensionStoreData={uiExtensionStore.data}
       from="portal"
       headerNavbarLinks={navbarLinks}
-      headerRightContent={(
-        systemLanguageConfig.isUsingI18n ? (
-          <LanguageSwitcher initialLanguage={initialLanguage} />
-        ) : undefined
-      )}
     >
       {children}
     </LibBaseLayout>

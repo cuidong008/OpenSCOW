@@ -1,0 +1,14 @@
+# 正式固化「Service targetPort ≠ 8972」：先编辑 service-targetport.json 中 value（十进制端口），再执行：
+#   kubectl apply -k deploy/scow-slurm-adapter/overlays/mismatch-grpc-target-port
+# 适配器镜像升级后若已稳定监听 8972，请改回：
+#   kubectl apply -k deploy/scow-slurm-adapter/k8s
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../k8s
+patches:
+  - path: service-targetport.json
+    target:
+      kind: Service
+      name: scow-slurm-adapter
+      version: v1

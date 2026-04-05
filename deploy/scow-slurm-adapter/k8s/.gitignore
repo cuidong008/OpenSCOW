@@ -1,0 +1,5 @@
+# 从集群拷贝的敏感文件，勿提交
+slurm.conf
+munge.key
+jwt.key
+slurm.key

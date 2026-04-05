@@ -1,0 +1,29 @@
+# 复制为自有文件并修改后应用（勿提交含真实密码的版本）：
+#   kubectl apply -n slurm -f your-adapter-config.yaml
+# 键名须为 config.yaml，挂载后为 /app/config/config.yaml。
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: scow-slurm-adapter-config
+  namespace: slurm
+data:
+  config.yaml: |
+    log:
+      level: info
+    mysql:
+      # 从 adapter Pod 内必须能 TCP 连通；K8s 里不要用 127.0.0.1（除非 MySQL 与适配器同 Pod）。
+      # 填 slurmdbd 所用 MySQL 的 Service 名、节点 IP 或集群内 DNS（如 mariadb.slurm.svc.cluster.local）。
+      host: "172.16.84.71"
+      port: 3306
+      user: "slurm"
+      dbname: "slurm_acct_db"
+      password: "123456"
+      # 须与 slurm.conf 中 ClusterName= 完全一致（例：grep ^ClusterName /etc/slurm/slurm.conf），否则适配器可能无法完成初始化、不监听 8972。
+      clustername: "slurm_slurm"
+      databaseencode: "utf8"
+    service:
+      addr: "0.0.0.0:8972"
+    slurm:
+      defaultqos: "normal"
+    modulepath:
+      path: "/etc/profile"

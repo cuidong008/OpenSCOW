@@ -18,7 +18,6 @@ import { Space } from "antd";
 import React from "react";
 import { antdBreakpoints } from "src/layouts/base/constants";
 import { BigScreenMenu } from "src/layouts/base/header/BigScreenMenu";
-import { Logo } from "src/layouts/base/header/Logo";
 import { NavItemProps } from "src/layouts/base/NavItemProps";
 import { ClientUserInfo } from "src/server/trpc/route/auth";
 import { styled } from "styled-components";
@@ -98,7 +97,6 @@ export const Header: React.FC<Props> = ({
               </a>
             ) : undefined
           }
-          <Logo />
         </Space>
       </HeaderItem>
       <MenuPart>

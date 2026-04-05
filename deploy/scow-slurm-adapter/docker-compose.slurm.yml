@@ -1,0 +1,13 @@
+# 叠加到 docker compose：挂载 Slurm 客户端所需文件（与仓库 README 中说明一致）。
+# 使用：docker compose -f docker-compose.yml -f docker-compose.slurm.yml up -d
+services:
+  scow-slurm-adapter:
+    volumes:
+      - type: bind
+        source: ${SLURM_CONF_PATH:-/etc/slurm/slurm.conf}
+        target: /etc/slurm/slurm.conf
+        read_only: true
+      - type: bind
+        source: ${MUNGE_KEY_PATH:-/etc/munge/munge.key}
+        target: /etc/munge/munge.key
+        read_only: true

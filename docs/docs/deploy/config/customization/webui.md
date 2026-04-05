@@ -46,7 +46,7 @@ footer:
 # 主题色配置。可以不填
 # 对portal-web和mis-web有效
 primaryColor:
-    # 对所有域名生效的主题色。默认为#9B0000
+    # 对所有域名生效的主题色。默认为#1677ff
     defaultColor: string
     # 对某特定来访域名生效的主题色，可以不填
     hostnameMap: 

@@ -4,17 +4,18 @@
 <head>
   <title>{{ authTexts.login.login }}</title>
   <link href="{{ cssUrl }}" rel="stylesheet">
-  <link rel="icon" type="image/x-icon" href="{{ faviconUrl }}"></link>
+  <link rel="icon" type="image/svg+xml" href="{{ faviconUrl }}">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body {
-      background-image: url("{{ backgroundImagePath }}");
-      background-repeat: no-repeat;
       background-color: {{ backgroundFallbackColor }};
-      background-size: cover;
+      background-image: none;
     }
     .button-primary {
-        background-color: {{ themeColor }};
+        background-color: #525252;
+    }
+    .button-primary:hover {
+        background-color: #404040;
     }
     svg {
       height: 100%;
@@ -29,15 +30,6 @@
 </head>
 
 <body style="font-family:Roboto">
-    <div class="fixed top-6 left-24">
-      {% if logoLink == "" %}
-      <img class="w-40" src="{{ logoUrl }}" alt="logo">
-      {% else %}
-      <a href="{{ logoLink }}" target="_blank">
-        <img class="w-40" src="{{ logoUrl }}" alt="logo">
-      </a>
-      {% endif %}
-    </div>
     <div class="w-full h-screen flex">
       <div class="w-1/2 h-screen ml-20 flex items-center justify-center">
         <div class="w-80 max-w-md min-w-max bg-white rounded-lg py-12">
@@ -129,9 +121,6 @@
           {% endfor %}
       </div>
     </div>
-    <p class="absolute bottom-0 w-full pl-24 my-4 text-white text-xs" style="color: {{ footerTextColor }}">
-      Powered by <a href="https://github.com/PKUHPC/OpenSCOW" target="_blank">OpenSCOW</a>
-    </p>
     <script>
       // 图片预加载
       const eyeImg = new Image();

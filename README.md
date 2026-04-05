@@ -6,6 +6,22 @@
 
 [English README](./README.en.md)
 
+# 编译命令
+
+在仓库根目录执行（可按需修改镜像标签与代理地址）：
+
+```bash
+docker build --network=host \
+  --platform linux/amd64 \
+  --build-arg PKG_CLI_TARGETS=node18-linux-x64 \
+  -f docker/Dockerfile.scow \
+  -t harbor.aix.com:8443/library/openscow:1.6.9 \
+  --build-arg GIT_HTTP_PROXY=http://127.0.0.1:7890 \
+  --build-arg GIT_HTTPS_PROXY=http://127.0.0.1:7890 \
+  --progress=plain \
+  .
+```
+
 # 简介
 
 为了解决算力中心在建设和运营中广泛存在的运营管理难、用户使用难、资源融合难等问题，降低集群平台软件的建设、管理、使用门槛，我们推出了算力平台系统SCOW（Super Computing On Web）。SCOW可同时纳管基于不同硬件厂商、不同软件栈建设的包括HPC算力和AI算力在内的各类异构算力资源，向用户和管理员提供便捷完整的算力资源管理和使用功能；也可以接入算力网络，实现算力融合。为算力中心提供了更开放、更便捷、更灵活、更高效的运营管理解决方案。

@@ -12,7 +12,7 @@
 
 import { Entity, Enum, Index, PrimaryKey, Property } from "@mikro-orm/core";
 import { OperationEvent } from "@scow/lib-operation-log";
-import { CURRENT_TIMESTAMP, DATETIME_TYPE } from "src/utils/orm"; ;
+import { CURRENT_TIMESTAMP, DATETIME_TYPE } from "src/utils/orm";
 
 
 export enum OperationResult {

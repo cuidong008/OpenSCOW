@@ -13,12 +13,9 @@
 import { Descriptions, Typography } from "antd";
 import { NextPage } from "next";
 import { requireAuth } from "src/auth/requireAuth";
-import { ModalButton } from "src/components/ModalLink";
 import { Section } from "src/components/Section";
 import { Localized, useI18nTranslateToString } from "src/i18n";
-import { ChangePasswordModal } from "src/pageComponents/profile/ChangePasswordModal";
 import { antdBreakpoints } from "src/styles/constants";
-import { publicConfig } from "src/utils/config";
 import { Head } from "src/utils/head";
 import { styled } from "styled-components";
 
@@ -52,9 +49,6 @@ const TitleText = styled(Typography.Title)`
 }
 `;
 
-const ChangePasswordModalButton = ModalButton(ChangePasswordModal, { type: "link" });
-
-
 export const ProfilePage: NextPage = requireAuth(() => true)(({ userStore: { user } }) => {
 
   const t = useI18nTranslateToString();
@@ -79,29 +73,6 @@ export const ProfilePage: NextPage = requireAuth(() => true)(({ userStore: { use
           </Descriptions.Item>
         </Descriptions>
       </Part>
-      {
-        publicConfig.ENABLE_CHANGE_PASSWORD ? (
-          <>
-            <TitleText>
-              <Localized id="pages.profile.changePassword"></Localized>
-            </TitleText>
-            <Part title>
-              <Descriptions
-                column={1}
-                labelStyle={{ paddingLeft:"10px", paddingTop:"5px" }}
-                contentStyle={{ paddingLeft:"10px" }}
-              >
-                <Descriptions.Item label={t("pages.profile.loginPassword")}>
-                  <span style={{ width:"200px" }}>********</span>
-                  <ChangePasswordModalButton>
-                    <Localized id="pages.profile.changePassword"></Localized>
-                  </ChangePasswordModalButton>
-                </Descriptions.Item>
-              </Descriptions>
-            </Part>
-          </>
-        ) : undefined
-      }
     </Container>
   );
 });

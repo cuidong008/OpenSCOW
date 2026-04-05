@@ -15,9 +15,17 @@ import { ensureNotUndefined, plugin } from "@ddadaal/tsgrpc-server";
 import { ServiceError } from "@grpc/grpc-js";
 import { Status } from "@grpc/grpc-js/build/src/constants";
 import { QueryOrder, raw } from "@mikro-orm/core";
-import { addUserToAccount, changeEmail as libChangeEmail, createUser, getCapabilities, getUser, removeUserFromAccount,
-}
-  from "@scow/lib-auth";
+import {
+  addUserToAccount,
+  changeEmail as libChangeEmail,
+  changeName as libChangeName,
+  createUser,
+  deleteUser as deleteUserInAuth,
+  getCapabilities,
+  getUser,
+  HttpError,
+  removeUserFromAccount,
+} from "@scow/lib-auth";
 import { decimalToMoney } from "@scow/lib-decimal";
 import { checkTimeZone, convertToDateMessage } from "@scow/lib-server/build/date";
 import {
@@ -498,7 +506,7 @@ export const userServiceServer = plugin((server) => {
       }];
     },
 
-    deleteUser: async ({ request, em }) => {
+    deleteUser: async ({ request, em, logger }) => {
       const { userId, tenantName } = request;
 
       const user = await em.findOne(User, { userId, tenant: { name: tenantName } });
@@ -517,6 +525,22 @@ export const userServiceServer = plugin((server) => {
           code: Status.FAILED_PRECONDITION,
           details: `User ${userId} is an owner of an account.`,
         } as ServiceError;
+      }
+
+      if (server.ext.capabilities.deleteUser) {
+        try {
+          await deleteUserInAuth(authUrl, { identityId: userId }, logger);
+        } catch (e) {
+          logger.error(e, "Failed to delete user %s in auth.", userId);
+          throw {
+            code: Status.INTERNAL,
+            message: `Failed to delete user ${userId} in auth.`,
+          } as ServiceError;
+        }
+      } else {
+        logger.warn(
+          "Auth deleteUser is not supported; only removing user from MIS. The account may still exist in LDAP/SSH.",
+        );
       }
 
       await em.removeAndFlush(user);
@@ -815,6 +839,53 @@ export const userServiceServer = plugin((server) => {
                 } as ServiceError;
             }
           });
+      }
+
+      return [{}];
+    },
+
+    /**
+     * 更新 MIS 中用户姓名；若 Auth 声明 changeName 能力（LDAP attrs.name 已配置），则同步修改目录显示名（如 cn）。
+     */
+    changeName: async ({ request, em, logger }) => {
+      const { userId, newName } = request;
+
+      const user = await em.findOne(User, { userId: userId });
+
+      if (!user) {
+        throw {
+          code: Status.NOT_FOUND, message: `User ${userId} is not found.`,
+        } as ServiceError;
+      }
+
+      user.name = newName;
+      await em.flush();
+
+      const ldapCapabilities = await getCapabilities(authUrl);
+
+      if (ldapCapabilities.changeName) {
+        try {
+          await libChangeName(authUrl, {
+            identityId: userId,
+            newName,
+          }, logger);
+        } catch (e: unknown) {
+          if (e instanceof HttpError) {
+            if (e.status === 404) {
+              throw {
+                code: Status.NOT_FOUND, message: `User ${userId} is not found.`,
+              } as ServiceError;
+            }
+            if (e.status === 501) {
+              throw {
+                code: Status.UNIMPLEMENTED, message: "Changing name in auth is not supported.",
+              } as ServiceError;
+            }
+          }
+          throw {
+            code: Status.UNKNOWN, message: "LDAP failed to change display name",
+          } as ServiceError;
+        }
       }
 
       return [{}];

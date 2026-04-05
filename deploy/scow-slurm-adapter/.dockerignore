@@ -1,0 +1,11 @@
+# 减小 build 上下文；避免把密钥打进镜像
+# 插件目录里的说明与 Git 元数据不打进镜像（仅 .so 等）
+files/slurm-plugins/README.md
+files/slurm-plugins/.gitignore
+
+k8s/munge.key
+k8s/jwt.key
+k8s/slurm.key
+secrets/
+*.tar
+.git

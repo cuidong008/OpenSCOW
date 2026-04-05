@@ -393,6 +393,16 @@ message ChangeEmailRequest {
 message ChangeEmailResponse {
 }
 
+// 仅更新 MIS 数据库中的用户姓名，不同步至认证系统（LDAP 等）
+message ChangeNameRequest {
+  string user_id = 1;
+  string new_name = 2;
+}
+
+// NOT_FOUND: user is not found
+message ChangeNameResponse {
+}
+
 
 message GetNewUserCountRequest {
   google.protobuf.Timestamp start_time = 1;
@@ -467,6 +477,7 @@ service UserService {
 
   rpc CheckUserNameMatch (CheckUserNameMatchRequest) returns (CheckUserNameMatchResponse);
   rpc ChangeEmail (ChangeEmailRequest) returns (ChangeEmailResponse);
+  rpc ChangeName (ChangeNameRequest) returns (ChangeNameResponse);
 
   rpc GetNewUserCount(GetNewUserCountRequest) returns (GetNewUserCountResponse);
 

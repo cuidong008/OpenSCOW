@@ -19,12 +19,18 @@ const LogoContainer = styled.h1`
   color: var(--ant-primary-color);
   margin-bottom: 0;
 
-  img {
-    padding: 2px 0;
-  }
   a {
     display: flex;
   }
+`;
+
+/** Show only the left icon region of wide logo assets (crop wordmark on the right). */
+const LogoImage = styled.img`
+  height: 40px;
+  width: 40px;
+  object-fit: cover;
+  object-position: left center;
+  padding: 2px 0;
 `;
 
 interface Props {
@@ -40,7 +46,7 @@ export const Logo: React.FC<Props> = ({ basePath }) => {
   return (
     <LogoContainer>
       <Link href="/">
-        <img height="40px" alt="logo" src={join(basePath, "/api/logo?" + query.toString())} />
+        <LogoImage alt="logo" src={join(basePath, "/api/logo?" + query.toString())} />
       </Link>
     </LogoContainer>
   );

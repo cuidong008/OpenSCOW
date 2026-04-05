@@ -44,7 +44,24 @@ RUN pnpm i --offline --frozen-lockfile
 
 RUN node scripts/createVersionFile.mjs version.json
 
-RUN pnpm build --filter="!@scow/docs"
+# pkg 在 Alpine 构建环境中只能产出 node*-alpine-*（musl）；使用 node*-linux-*（glibc）会在缓存未命中时报错：
+#   "Not able to build for 'linux' here, only for 'alpine'"
+# 默认与 runner 的 node:alpine 一致，打 node18-alpine-x64。
+# 需要 glibc 的 linux 可执行文件时：请改用 debian 系 builder，或传
+#   --build-arg PKG_CLI_TARGETS=node18-linux-x64[,node18-linux-arm64]
+# 构建 arm64 镜像时：--build-arg PKG_CLI_TARGETS=node18-alpine-arm64
+ARG PKG_CLI_TARGETS=node18-linux-x64
+ENV PKG_CLI_TARGETS=${PKG_CLI_TARGETS}
+
+# 与 install.yaml 中 compose 注入的路径一致：portal-web 为 join(basePath, portal.basePath)，mis-web 为 join(basePath, mis.basePath)。
+# 默认与官方 install 一致（整站 /、管理 /mis）。若 install.yaml 设 basePath: /hpc 且 portal/mis 为默认，则构建时传：
+#   --build-arg PORTAL_BASE_PATH=/hpc --build-arg MIS_BASE_PATH=/hpc/mis
+ARG PORTAL_BASE_PATH=/
+ARG MIS_BASE_PATH=/mis
+
+RUN pnpm build --filter="!@scow/docs" \
+    && cd apps/portal-web && BASE_PATH="${PORTAL_BASE_PATH}" pnpm run build:next && cd /app \
+    && cd apps/mis-web && BASE_PATH="${MIS_BASE_PATH}" pnpm run build:next && cd /app
 
 RUN node scripts/copyDist.mjs
 
@@ -69,7 +86,7 @@ COPY --from=builder /app/version.json ./
 COPY docker/entrypoint.sh .
 RUN chmod +x entrypoint.sh
 
-ENV NODE_ENV production
+ENV NODE_ENV=production
 
 EXPOSE 3000 80 5000
 

@@ -13,23 +13,19 @@
 import { compareDateTime, formatDateTime } from "@scow/lib-web/build/utils/datetime";
 import { DEFAULT_PAGE_SIZE } from "@scow/lib-web/build/utils/pagination";
 import { Static } from "@sinclair/typebox";
-import { App, Button, Divider, Form, Input, Space, Table } from "antd";
+import { App, Button, Form, Input, Space, Table } from "antd";
 import { SortOrder } from "antd/es/table/interface";
 import Link from "next/link";
 import React, { useCallback, useMemo, useState } from "react";
-import { api } from "src/apis";
-import { ChangePasswordModalLink } from "src/components/ChangePasswordModal";
 import { FilterFormContainer, FilterFormTabs } from "src/components/FilterFormContainer";
 import { TenantRoleSelector } from "src/components/TenantRoleSelector";
-import { prefix, useI18n, useI18nTranslateToString } from "src/i18n";
+import { prefix, useI18nTranslateToString } from "src/i18n";
 import { Encoding } from "src/models/exportFile";
 import { FullUserInfo, TenantRole } from "src/models/User";
 import { ExportFileModaLButton } from "src/pageComponents/common/exportFileModal";
 import { MAX_EXPORT_COUNT, urlToExport } from "src/pageComponents/file/apis";
 import { type GetTenantUsersSchema } from "src/pages/api/admin/getTenantUsers";
 import { User } from "src/stores/UserStore";
-import { getRuntimeI18nConfigText } from "src/utils/config";
-
 interface Props {
   data: Static<typeof GetTenantUsersSchema["responses"]["200"]> | undefined;
   isLoading: boolean;
@@ -58,7 +54,6 @@ export const AdminUserTable: React.FC<Props> = ({
 }) => {
 
   const t = useI18nTranslateToString();
-  const languageId = useI18n().currentLanguage.id;
 
   const { message } = App.useApp();
   const [form] = Form.useForm<FilterForm>();
@@ -156,10 +151,12 @@ export const AdminUserTable: React.FC<Props> = ({
           form={form}
           initialValues={query}
           // 搜索结束时重置页码到首页，重置排序信息
-          onFinish={async () => {
-            setQuery(await form.validateFields());
-            setCurrentPageNum(1);
-            setCurrentSortInfo({ field: null, order: null });
+          onFinish={() => {
+            void (async () => {
+              setQuery(await form.validateFields());
+              setCurrentPageNum(1);
+              setCurrentSortInfo({ field: null, order: null });
+            })();
           }}
         >
           <Form.Item label={t(p("idOrName"))} name="idOrName">
@@ -250,39 +247,6 @@ export const AdminUserTable: React.FC<Props> = ({
                 </>
               ))}
             </>
-          )}
-        />
-        <Table.Column<FullUserInfo>
-          dataIndex="changePassword"
-          title={t(pCommon("operation"))}
-          width="8%"
-          fixed="right"
-          render={(_, r) => (
-            <Space split={<Divider type="vertical" />}>
-              <ChangePasswordModalLink
-                userId={r.id}
-                name={r.name}
-                onComplete={async (newPassword) => {
-                  await api.changePasswordAsTenantAdmin({
-                    body: {
-                      identityId: r.id,
-                      newPassword: newPassword,
-                    },
-                  })
-                    .httpError(404, () => { message.error(t(p("notExist"))); })
-                    .httpError(501, () => { message.error(t(p("notAvailable"))); })
-                    .httpError(400, (e) => {
-                      if (e.code === "PASSWORD_NOT_VALID") {
-                        message.error(getRuntimeI18nConfigText(languageId, "passwordPatternMessage"));
-                      };
-                    })
-                    .then(() => { message.success(t(p("changeSuccess"))); })
-                    .catch(() => { message.error(t(p("changeFail"))); });
-                }}
-              >
-                {t(p("changePassword"))}
-              </ChangePasswordModalLink>
-            </Space>
           )}
         />
       </Table>

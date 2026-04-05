@@ -7,5 +7,5 @@
 The default value is:
 
 ```json
-"#9B0000"
+"#1677ff"
 ```

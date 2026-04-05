@@ -32,7 +32,7 @@ loginNodes:
 
 # adapter：
 #   - adapter 用本机 Docker Compose 映射 8972 时：adapterUrl 多为 docker0 网关 172.17.0.1:8972（同机）或 节点IP:8972。
-#   - adapter 在 K8s 且 Service 为 NodePort 30972（见 deploy/scow-slurm-adapter/scow-slurm-adapter.k8s.yaml）时：
+#   - adapter 在 K8s 且 Service 为 NodePort 30972（见 deploy/scow-slurm-adapter/k8s/service.yaml）时：
 #     用「mis-server / portal-server 容器内 nc -zv 能通的」主机:30972（勿写 127.0.0.1）。
 #     同机 K8s 时若 172.17.0.1:30972 不通可试节点局域网 IP（与 loginNodes 一致）；反之亦然。
 # **改 adapterUrl 后须重启 mis-server 与 portal-server**（MIS 创建账户走 mis-server → adapter，只重启 portal 不够）。

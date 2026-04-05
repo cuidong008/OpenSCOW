@@ -13,6 +13,26 @@
 import { join, normalize } from "path";
 
 /**
+ * Join URL path segments for browser paths (e.g. Next.js basePath + "/api/...").
+ * Unlike Node {@link join}, a leading `/` on a later segment does **not** discard the base
+ * (`path.join("/hpc", "/api/x")` incorrectly becomes `/api/x`).
+ */
+export function joinUrlPath(base: string, ...parts: string[]): string {
+  let out = base.trim();
+  if (!out || out === "/") {
+    out = "";
+  } else {
+    out = out.replace(/\/+$/, "").replace(/^\/+/, "");
+  }
+  for (const part of parts) {
+    const seg = String(part).replace(/^\/+|\/+$/g, "");
+    if (!seg) continue;
+    out = out ? `${out}/${seg}` : seg;
+  }
+  return out ? `/${out}` : "/";
+}
+
+/**
  * Join paths to base url or pathname
  * @param base base url. can be a URL or a pathname
  * @param paths other paths

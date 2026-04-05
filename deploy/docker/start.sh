@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # 在本目录启动 OpenSCOW（需已放置可执行的 ./cli，版本与 install.yaml 的 imageTag 一致）。
 # 依赖：本机已 `docker compose`、已 `docker login` 到 Harbor（若镜像在私有库）。
-# Slurm adapter：本机 Docker 见 ../scow-slurm-adapter/docker-compose.yml；若在 K8s 见同目录 scow-slurm-adapter.k8s.yaml（NodePort 30972）。
+# Slurm adapter：本机 Docker 见 ../scow-slurm-adapter/docker-compose.yml；若在 K8s 见 ../scow-slurm-adapter/k8s/（NodePort 30972）。
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 cd "$ROOT"

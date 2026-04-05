@@ -12,9 +12,10 @@
 
 import { GetConfigFn, getConfigFromFile } from "@scow/lib-config";
 import { Static, Type } from "@sinclair/typebox";
-import { DEFAULT_CONFIG_BASE_PATH } from "src/constants";
-import { createI18nStringSchema } from "src/i18n";
-import { checkUiExtensionConfig, UiExtensionConfigSchema } from "src/uiExtensions";
+
+import { DEFAULT_CONFIG_BASE_PATH } from "./constants";
+import { createI18nStringSchema } from "./i18n";
+import { checkUiExtensionConfig, UiExtensionConfigSchema } from "./uiExtensions";
 
 export enum JobTableType {
   mariadb = "mariadb",

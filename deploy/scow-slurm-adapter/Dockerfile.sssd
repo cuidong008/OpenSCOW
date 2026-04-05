@@ -1,0 +1,103 @@
+# Ubuntu / Debian 基础镜像：在现有 scow-slurm-adapter 上安装 SSSD，供容器内 LDAP 用户解析。
+# Slurm 客户端（scontrol/sinfo/sackd）从「与集群 slurmctld 相同版本」的镜像复制，避免 apt 里 23.x 客户端连 25.x ctld 出现
+# slurm_load_partitions: Unexpected message received。
+#
+# 构建前取镜像名：
+#   slurmctld（scontrol/sinfo/libslurm）：
+#     kubectl -n slurm get pod slurm-controller-0 -o jsonpath='{.spec.containers[?(@.name=="slurmctld")].image}{"\n"}'
+#   sackd（slurmctld 镜像常不含 /usr/sbin/sackd，须用登录节点等镜像）：
+#     kubectl -n slurm get pod -l app.kubernetes.io/name=slurm-login -o jsonpath='{.items[0].spec.containers[0].image}{"\n"}'
+#     或任选带 /usr/sbin/sackd 且与集群 Slurm 版本一致的 Pod 镜像。
+#
+# 打镜像前须将集群 slurmctld 的 PluginDir 同步到构建上下文（否则 COPY 后校验失败）：
+#   cd deploy/scow-slurm-adapter && ./scripts/sync-slurm-plugins-from-cluster.sh
+#
+# 本地构建示例（SACKD_SOURCE_IMAGE 勿省略：slurmctld 镜像通常没有 sackd）：
+#   docker build -f Dockerfile.sssd \
+#     --build-arg BASE_IMAGE=harbor.example/library/scow-slurm-adapter:1.6.0 \
+#     --build-arg SLURM_CLIENT_IMAGE=harbor.example/.../slurmctld:25.11-ubuntu24.04 \
+#     --build-arg SACKD_SOURCE_IMAGE=harbor.example/.../slurm-login:25.11-ubuntu24.04 \
+#     -t scow-slurm-adapter-sssd:local .
+
+ARG BASE_IMAGE=ghcr.io/pkuhpc/scow-slurm-adapter:latest
+# 必须覆盖为当前集群 slurm-controller Pod 使用的镜像（与 slurmctld 版本一致）
+ARG SLURM_CLIENT_IMAGE=slurm-client-image-must-be-set-at-build:invalid
+# 须含 /usr/sbin/sackd（与集群 Slurm 同版本）；slurmctld 底图常无 sackd，请用 slurm-login / slurmd 等镜像
+ARG SACKD_SOURCE_IMAGE=${SLURM_CLIENT_IMAGE}
+
+FROM ${SLURM_CLIENT_IMAGE} AS slurm-client-export
+USER root
+SHELL ["/bin/bash", "-euxo", "pipefail", "-c"]
+# 从控制器镜像导出 scontrol/sinfo 及 ldd 依赖；sackd 见阶段 sackd-export；插件目录见 COPY files/slurm-plugins。
+RUN mkdir -p /export/bin /export/lib \
+  && if [[ -x /usr/bin/scontrol ]]; then cp -a /usr/bin/scontrol /usr/bin/sinfo /export/bin/; \
+     elif [[ -x /usr/local/bin/scontrol ]]; then cp -a /usr/local/bin/scontrol /usr/local/bin/sinfo /export/bin/; \
+     else echo "scontrol not found under /usr/bin or /usr/local/bin" >&2; exit 1; fi \
+  && for bin in /export/bin/scontrol /export/bin/sinfo; do \
+       ldd "$bin" | awk '/=> \//{print $3}' | while read -r lib; do \
+         base=$(basename "$lib"); \
+         case "$base" in \
+           libc.so*|ld-linux-*|libm.so*|libmvec.so*|libresolv.so*|libpthread.so*|libdl.so*|librt.so*|libnsl.so*|libnss_*.so*|libtinfo.so*|libgcc_s.so*|libstdc++.so*|libBrokenLocale*|libanl.so*|libcrypt.so*) ;; \
+           *) cp -na "$lib" /export/lib/ ;; \
+         esac; \
+       done; \
+     done \
+  && for d in /usr/lib/x86_64-linux-gnu /usr/lib/x86_64-linux-gnu/slurm /usr/lib64 /usr/local/lib; do \
+       if [[ -d "$d" ]]; then \
+         shopt -s nullglob; \
+         for f in "$d"/libslurm*.so*; do cp -na "$f" /export/lib/; done; \
+         shopt -u nullglob; \
+       fi; \
+     done \
+  && ls -la /export/bin /export/lib | head -20
+
+FROM ${SACKD_SOURCE_IMAGE} AS sackd-export
+USER root
+SHELL ["/bin/bash", "-euxo", "pipefail", "-c"]
+RUN mkdir -p /out \
+  && if [[ -x /usr/sbin/sackd ]]; then cp -a /usr/sbin/sackd /out/sackd; \
+     else echo "FATAL: SACKD_SOURCE_IMAGE 中无 /usr/sbin/sackd（slurmctld 镜像通常如此）。请传 --build-arg SACKD_SOURCE_IMAGE=slurm-login 或 slurmd 所用镜像。" >&2; exit 1; fi \
+  && ls -la /out/sackd
+
+FROM ${BASE_IMAGE}
+
+USER root
+
+# LDAPS 时 sssd.conf 中 ldap_tls_cacert 建议为 /etc/sssd/ldap-ca/ca.crt（K8s Secret / compose 挂载）。
+# 先 apt：创建 slurm 用户、满足 sackd 依赖；再用控制器镜像中的同版本二进制覆盖，避免 apt 的 Slurm 与集群 ctld 不一致。
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends \
+    sssd \
+    libnss-sss \
+    libpam-sss \
+    libpam-runtime \
+    sackd \
+  && rm -rf /var/lib/apt/lists/*
+
+# 与 slurmctld 同版本的 scontrol / sinfo 及 ldd 依赖（须在 apt 之后 COPY，防止被包管理覆盖）
+COPY --from=slurm-client-export /export/bin/scontrol /export/bin/sinfo /usr/bin/
+# sackd 须来自 SACKD_SOURCE_IMAGE（与集群同版本的 login/slurmd 镜像），勿依赖 slurmctld 或 apt 旧包
+COPY --from=sackd-export /out/sackd /usr/sbin/sackd
+COPY --from=slurm-client-export /export/lib/ /usr/local/lib/slurm-client-bundle/
+# 勿把 glibc 系 .so 留在 bundle 内，否则 sackd 经 LD_LIBRARY_PATH 链到错误 libm/libresolv，可出现 undefined symbol: init_conmgr
+RUN for p in libm libmvec libresolv libpthread libdl librt libtinfo libgcc_s libstdc++ libnsl libBrokenLocale libanl libcrypt; do \
+      rm -f /usr/local/lib/slurm-client-bundle/${p}.so*; \
+    done \
+  && find /usr/local/lib/slurm-client-bundle -maxdepth 1 -name 'libnss_*.so*' -delete 2>/dev/null || true
+
+# 与 slurm.conf 中 PluginDir 一致；内容由 sync-slurm-plugins-from-cluster.sh 从 slurm-controller-0 拷入 files/slurm-plugins/
+RUN mkdir -p /usr/lib/x86_64-linux-gnu
+COPY files/slurm-plugins/ /usr/lib/x86_64-linux-gnu/slurm/
+RUN test -d /usr/lib/x86_64-linux-gnu/slurm \
+  && [ -n "$(ls -A /usr/lib/x86_64-linux-gnu/slurm 2>/dev/null)" ] \
+  || (echo "FATAL: files/slurm-plugins 为空或未同步，请先运行 scripts/sync-slurm-plugins-from-cluster.sh" >&2; exit 1)
+
+ENV LD_LIBRARY_PATH=/usr/local/lib/slurm-client-bundle${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+
+COPY files/nsswitch.conf /etc/nsswitch.conf
+COPY scripts/entrypoint-sssd.sh /entrypoint-sssd.sh
+RUN chmod 755 /entrypoint-sssd.sh
+
+USER root
+
+ENTRYPOINT ["/entrypoint-sssd.sh"]

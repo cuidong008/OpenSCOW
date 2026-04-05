@@ -6,3 +6,6 @@ passwordPattern:
       default: 必须包含字母，长度大于等于8位
       en: Must contain letter and at least 8 characters in length.
       zh_cn: 必须包含字母，长度大于等于8位
+
+# 仅简体中文，不允许用户切换语言（isUsingI18n: false）
+systemLanguage: "zh_cn"

@@ -1,0 +1,4 @@
+# 从集群 slurm-controller-0 / slurmctld 同步的 Slurm 插件，体积大且随版本变化，勿提交 Git。
+*
+!.gitignore
+!README.md

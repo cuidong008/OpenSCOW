@@ -17,8 +17,10 @@ export interface Capabilities {
   checkPassword?: boolean;
   changePassword?: boolean;
   changeEmail?: boolean;
+  changeName?: boolean;
   getUser?: boolean;
   accountUserRelation?: boolean;
+  deleteUser?: boolean;
 }
 
 

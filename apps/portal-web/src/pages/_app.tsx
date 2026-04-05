@@ -215,8 +215,6 @@ function MyApp({ Component, pageProps, extra }: Props) {
               <TopProgressBar />
               <BaseLayout
                 footerText={footerText}
-                versionTag={publicConfig.VERSION_TAG}
-                initialLanguage={extra.initialLanguage}
               >
                 <Component {...pageProps} />
               </BaseLayout>

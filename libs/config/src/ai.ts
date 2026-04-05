@@ -12,7 +12,8 @@
 
 import { GetConfigFn, getConfigFromFile } from "@scow/lib-config";
 import { Static, Type } from "@sinclair/typebox";
-import { DEFAULT_CONFIG_BASE_PATH } from "src/constants";
+
+import { DEFAULT_CONFIG_BASE_PATH } from "./constants";
 
 
 export const AiConfigSchema = Type.Object({

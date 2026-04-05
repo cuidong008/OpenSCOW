@@ -383,6 +383,34 @@ export const createComposeSpec = (config: InstallConfigSchema) => {
     });
   }
 
+  if (config.userSync) {
+    if (!config.mis) {
+      throw new Error("Invalid config: userSync requires mis to be deployed");
+    }
+    const us = config.userSync;
+    addService("user-sync", {
+      image: scowImage,
+      environment: {
+        SCOW_LAUNCH_APP: "user-sync",
+        HOST: "0.0.0.0",
+        PORT: "8080",
+        MIS_SERVER_URL: "mis-server:5000",
+        AUTH_INTERNAL_URL: authUrl || "http://auth:5000",
+        USER_SYNC_API_TOKEN: us.userSyncApiToken,
+        ...(us.misScowApiToken ? { MIS_SCOW_API_TOKEN: us.misScowApiToken } : {}),
+        ...serviceLogEnv,
+        ...nodeOptions ? { NODE_OPTIONS: nodeOptions } : {},
+      },
+      ports: us.portMappings?.userSync ? { [us.portMappings.userSync]: 8080 } : {},
+      volumes: {
+        "/etc/hosts": "/etc/hosts",
+        "./config": "/etc/scow",
+        [SSH_DIR]: "/root/.ssh",
+      },
+      depends_on: ["mis-server"],
+    });
+  }
+
   // AUDIT
   if (config.audit) {
     addService("audit-server", {

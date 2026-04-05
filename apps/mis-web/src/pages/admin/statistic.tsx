@@ -14,7 +14,7 @@ import { MoneyCollectOutlined, PlayCircleOutlined, ProjectOutlined,
   TeamOutlined, UserOutlined, WalletOutlined } from "@ant-design/icons";
 import { moneyToNumber } from "@scow/lib-decimal";
 import { getDefaultPresets } from "@scow/lib-web/build/utils/datetime";
-import { Card, Col, DatePicker, Row, Space } from "antd";
+import { Card, Col, DatePicker, Row, Space, theme } from "antd";
 import dayjs from "dayjs";
 import { NextPage } from "next";
 import { useCallback, useMemo, useState } from "react";
@@ -81,6 +81,7 @@ export const PlatformStatisticsPage: NextPage = requireAuth(
 
   const t = useI18nTranslateToString();
   const languageId = useI18n().currentLanguage.id;
+  const { token } = theme.useToken();
 
   const OperationTypeTexts = getOperationTypeTexts(t);
 
@@ -344,7 +345,7 @@ export const PlatformStatisticsPage: NextPage = requireAuth(
             totalValue={statisticInfo?.totalUser}
             loading={statisticInfoLoading}
             icon={UserOutlined}
-            iconColor="#94070A"
+            iconColor={token.colorPrimary}
           />
         </Col>
         <Col flex={4}>
@@ -392,7 +393,7 @@ export const PlatformStatisticsPage: NextPage = requireAuth(
           <Card
             title={(
               <Space align="baseline">
-                <UserOutlined style={{ fontSize: "24px", color: "#94070A" }} />
+                <UserOutlined style={{ fontSize: "24px", color: token.colorText }} />
                 <TitleText>{t(p("userCount"))}</TitleText>
               </Space>
             )}

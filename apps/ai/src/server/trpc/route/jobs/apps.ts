@@ -830,7 +830,7 @@ export const listAppSessions =
           const sessionMetadata = JSON.parse(content.toString()) as SessionMetadata;
 
 
-          const runningJobInfo: JobInfo | undefined = runningJobInfoMap[sessionMetadata.jobId];
+          const runningJobInfo = runningJobInfoMap[sessionMetadata.jobId];
 
           let host: string | undefined = undefined;
           let port: number | undefined = undefined;

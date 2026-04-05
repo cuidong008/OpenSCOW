@@ -59,13 +59,11 @@ const StyledLayout = styled(Layout)`
 
 type Props = PropsWithChildren<{
   footerText: string;
-  versionTag: string | undefined;
   routes: NavItemProps[];
   logout: (() => void) | undefined;
   user: UserInfo | undefined;
   headerNavbarLinks?: HeaderNavbarLink[];
   headerRightContent?: React.ReactNode;
-  basePath: string;
   userLinks?: UserLink[];
   languageId: string,
   from: "portal" | "mis";
@@ -73,8 +71,8 @@ type Props = PropsWithChildren<{
 }>;
 
 export const BaseLayout: React.FC<PropsWithChildren<Props>> = ({
-  children, footerText, versionTag, routes, user, logout,
-  headerNavbarLinks, basePath, userLinks, languageId,
+  children, footerText, routes, user, logout,
+  headerNavbarLinks, userLinks, languageId,
   extensionStoreData, from, headerRightContent,
 }) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
@@ -148,7 +146,6 @@ export const BaseLayout: React.FC<PropsWithChildren<Props>> = ({
         routes={finalRoutes ?? routes}
         user={user}
         logout={logout}
-        basePath={basePath}
         userLinks={userLinks}
         languageId={languageId}
         right={headerRightContent}
@@ -172,7 +169,7 @@ export const BaseLayout: React.FC<PropsWithChildren<Props>> = ({
           <Content>
             {children}
           </Content>
-          <Footer text={footerText} versionTag={versionTag} />
+          <Footer text={footerText} />
         </ContentPart>
       </StyledLayout>
     </Root>

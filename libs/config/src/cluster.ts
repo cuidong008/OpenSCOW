@@ -12,9 +12,10 @@
 
 import { getDirConfig } from "@scow/lib-config";
 import { Static, Type } from "@sinclair/typebox";
-import { DEFAULT_CONFIG_BASE_PATH } from "src/constants";
-import { createI18nStringSchema, I18nStringType } from "src/i18n";
 import { Logger } from "ts-log";
+
+import { DEFAULT_CONFIG_BASE_PATH } from "./constants";
+import { createI18nStringSchema, I18nStringType } from "./i18n";
 
 const CLUSTER_CONFIG_BASE_PATH = "clusters";
 

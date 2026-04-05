@@ -1,0 +1,18 @@
+# Ubuntu 本机：scow-slurm-adapter-sssd:local；仅挂载 sssd.conf。
+# 适用于 ldap_tls_reqcert = never（无需 CA 目录）。与 OpenSCOW 同机时常用 172.17.0.1:8972。
+services:
+  scow-slurm-adapter:
+    build:
+      context: .
+      dockerfile: Dockerfile.sssd
+      args:
+        BASE_IMAGE: ${SCOW_SLURM_ADAPTER_IMAGE:-ghcr.io/pkuhpc/scow-slurm-adapter:latest}
+    image: scow-slurm-adapter-sssd:local
+    network_mode: host
+    environment:
+      SSSD_SMOKE_USER: ${SSSD_SMOKE_USER:-}
+    volumes:
+      - type: bind
+        source: ./secrets/sssd.conf
+        target: /etc/sssd/sssd.conf
+        read_only: true

@@ -117,6 +117,7 @@ export class JobInfo {
 
 
   constructor(
+    // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
     job: { cluster: string } & ClusterJobInfo,
     tenant: string | undefined,
     jobPriceInfo: JobPriceInfo,
@@ -140,8 +141,8 @@ export class JobInfo {
     this.nodesAlloc = job.nodesAlloc!;
     this.timelimit = job.timeLimitMinutes;
     this.timeUsed = job.elapsedSeconds!;
-    this.timeWait = job.startTime ? ((new Date(job.startTime)).getTime() - (new Date(job.submitTime!)).getTime()) / 1000
-      : ((new Date(job.endTime!)).getTime() - (new Date(job.submitTime!)).getTime()) / 1000;
+    this.timeWait = job.startTime ? ((new Date(job.startTime)).getTime() - (new Date(job.submitTime)).getTime()) / 1000
+      : ((new Date(job.endTime)).getTime() - (new Date(job.submitTime)).getTime()) / 1000;
     this.qos = job.qos;
 
     this.tenantPrice = jobPriceInfo.tenant?.price ?? new Decimal(0);
@@ -149,8 +150,8 @@ export class JobInfo {
     this.accountPrice = jobPriceInfo.account?.price ?? new Decimal(0);
     this.accountBillingItemId = jobPriceInfo.account?.billingItemId ?? UNKNOWN_PRICE_ITEM;
 
-    this.timeSubmit = new Date(job.submitTime!);
+    this.timeSubmit = new Date(job.submitTime);
     this.timeStart = job.startTime ? new Date(job.startTime) : undefined;
-    this.timeEnd = new Date(job.endTime!);
+    this.timeEnd = new Date(job.endTime);
   }
 }

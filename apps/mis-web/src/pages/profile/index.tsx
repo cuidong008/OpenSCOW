@@ -13,16 +13,11 @@
 import { formatDateTime } from "@scow/lib-web/build/utils/datetime";
 import { Descriptions, Tag, Typography } from "antd";
 import { NextPage } from "next";
-import { useState } from "react";
 import { requireAuth } from "src/auth/requireAuth";
-import { ModalButton } from "src/components/ModalLink";
 import { Section } from "src/components/Section";
 import { useI18nTranslateToString } from "src/i18n";
 import { PlatformRole, TenantRole } from "src/models/User";
-import { ChangeEmailModal } from "src/pageComponents/profile/ChangeEmailModal";
-import { ChangePasswordModal } from "src/pageComponents/profile/ChangePasswordModal";
 import { antdBreakpoints } from "src/styles/constants";
-import { publicConfig } from "src/utils/config";
 import { Head } from "src/utils/head";
 import { styled } from "styled-components";
 
@@ -56,12 +51,7 @@ const TitleText = styled(Typography.Title)`
 }
 `;
 
-const ChangePasswordModalButton = ModalButton(ChangePasswordModal, { type: "link" });
-const ChangeEmailModalButton = ModalButton(ChangeEmailModal, { type: "link" });
-
 export const ProfilePage: NextPage = requireAuth(() => true)(({ userStore: { user } }) => {
-
-  const [email, setEmail] = useState(user.email);
 
   const t = useI18nTranslateToString();
 
@@ -91,6 +81,9 @@ export const ProfilePage: NextPage = requireAuth(() => true)(({ userStore: { use
             <Descriptions.Item label={t("common.userFullName")}>
               {user.name}
             </Descriptions.Item>
+            <Descriptions.Item label={t("common.email")}>
+              {user.email ?? ""}
+            </Descriptions.Item>
             {
               user.tenantRoles.length > 0 ? (
                 <Descriptions.Item label={t("common.tenantRole")}>
@@ -115,39 +108,6 @@ export const ProfilePage: NextPage = requireAuth(() => true)(({ userStore: { use
             }
             <Descriptions.Item label={t("common.createTime")}>
               {user.createTime ? formatDateTime(user.createTime) : ""}
-            </Descriptions.Item>
-          </Descriptions>
-        </Part>
-        {
-          publicConfig.ENABLE_CHANGE_PASSWORD ? (
-            <>
-              <TitleText>{t("common.changePassword")}</TitleText>
-              <Part title>
-                <Descriptions
-                  column={1}
-                  labelStyle={{ paddingLeft:"10px", paddingTop:"5px" }}
-                  contentStyle={{ paddingLeft:"10px" }}
-                >
-                  <Descriptions.Item label={t("common.loginPassword")}>
-                    <span style={{ width:"200px" }}>********</span>
-                    <ChangePasswordModalButton>{t("common.changePassword")}</ChangePasswordModalButton>
-                  </Descriptions.Item>
-                </Descriptions>
-              </Part>
-            </>
-          ) : undefined
-        }
-        <TitleText>{t("common.changeEmail")}</TitleText>
-        <Part title>
-          <Descriptions
-            column={1}
-            labelStyle={{ paddingLeft:"10px", paddingTop:"5px" }}
-            contentStyle={{ paddingLeft:"10px" }}
-          >
-            <Descriptions.Item label={t("common.email")}>
-              <span style={{ width:"230px" }}>{email}</span>
-              {/* setEmail用于profile页面展示的邮箱同步修改后的邮箱 */}
-              <ChangeEmailModalButton setEmail={setEmail}>{t("common.changeEmail")}</ChangeEmailModalButton>
             </Descriptions.Item>
           </Descriptions>
         </Part>

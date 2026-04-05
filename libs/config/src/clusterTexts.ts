@@ -12,8 +12,9 @@
 
 import { GetConfigFn, getConfigFromFile } from "@scow/lib-config";
 import { Static, Type } from "@sinclair/typebox";
-import { DEFAULT_CONFIG_BASE_PATH } from "src/constants";
-import { createI18nStringSchema } from "src/i18n";
+
+import { DEFAULT_CONFIG_BASE_PATH } from "./constants";
+import { createI18nStringSchema } from "./i18n";
 
 export const ClusterTextsConfigSchema = Type.Record(
   Type.String({ description: "租户，如果为default则是对所有租户" }),

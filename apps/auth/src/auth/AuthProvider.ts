@@ -27,6 +27,10 @@ export type CreateUserResult = "AlreadyExists" | "OK";
 export type ChangePasswordResult = "NotFound" | "OK";
 export type CheckPasswordResult = "NotFound" | "Match" | "NotMatch";
 export type ChangeEmailResult = "NotFound" | "OK";
+export type ChangeNameResult = "NotFound" | "OK";
+
+/** LDAP 中无此用户时返回 NotFound（幂等）；删除成功为 OK */
+export type DeleteUserResult = "NotFound" | "OK";
 
 export interface UserInfo {
   identityId: string;
@@ -46,4 +50,7 @@ export interface AuthProvider {
   => Promise<CheckPasswordResult>);
   changeEmail: undefined | ((id: string, newEmail: string,
     req: FastifyRequest) => Promise<ChangeEmailResult>);
+  changeName: undefined | ((id: string, newName: string,
+    req: FastifyRequest) => Promise<ChangeNameResult>);
+  deleteUser: undefined | ((identityId: string, req: FastifyRequest) => Promise<DeleteUserResult>);
 }

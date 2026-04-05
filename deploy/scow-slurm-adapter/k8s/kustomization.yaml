@@ -1,0 +1,10 @@
+# 用法：kubectl apply -k deploy/scow-slurm-adapter/k8s
+# Secret 须单独创建：sssd.conf（见 README）、Slurm（slurm.conf + munge.key + jwt.key + slurm.key，见 secret-slurm.example.sh）。
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: slurm
+resources:
+  - namespace.yaml
+  - deployment.yaml
+  - service.yaml
+  # 可选：kubectl apply -f configmap-nsswitch.yaml 并在 deployment 中取消 nsswitch 挂载注释

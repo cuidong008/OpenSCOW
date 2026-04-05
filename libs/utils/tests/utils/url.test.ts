@@ -10,7 +10,16 @@
  * See the Mulan PSL v2 for more details.
  */
 
-import { joinWithUrl, normalizePathnameWithQuery } from "src/url";
+import { joinUrlPath, joinWithUrl, normalizePathnameWithQuery } from "src/url";
+
+it.each([
+  [["/hpc", "/api/auth/callback"], "/hpc/api/auth/callback"],
+  [["/hpc/mis", "/api/auth/callback"], "/hpc/mis/api/auth/callback"],
+  [["/", "/api/x"], "/api/x"],
+  [["", "api", "x"], "/api/x"],
+])("joinUrlPath %o -> %s", (args, expected) => {
+  expect(joinUrlPath(...(args as [string, ...string[]]))).toBe(expected);
+});
 
 it.each([
   [["http://example.com", "foo"], "http://example.com/foo"],

@@ -64,7 +64,10 @@ export async function createUser(
     };
 
     if (ldap.attrs.name) {
-      userEntry[ldap.attrs.name] = info.name;
+      // inetOrgPerson 的 cn 等命名属性通常不能为空串，否则 LDAP 报 invalid per syntax
+      const rawName = typeof info.name === "string" ? info.name : "";
+      const displayName = rawName.trim() !== "" ? rawName.trim() : info.identityId;
+      userEntry[ldap.attrs.name] = displayName;
     }
 
     if (ldap.attrs.mail) {
@@ -74,6 +77,15 @@ export async function createUser(
     // parse attributes
     if (ldap.addUser.extraProps) {
       applyExtraProps(userEntry, ldap.addUser.extraProps, userEntry);
+    }
+
+    // extraProps 可能把 cn 等写成空占位；LDAP add 前再兜底一次
+    if (ldap.attrs.name) {
+      const nameAttr = ldap.attrs.name;
+      const v = userEntry[nameAttr];
+      if (typeof v !== "string" || v.trim() === "") {
+        userEntry[nameAttr] = info.identityId;
+      }
     }
 
     const add = promisify(client.add.bind(client));
@@ -103,7 +115,8 @@ export async function createUser(
         await add(groupDn, groupEntry);
       } catch (e) {
         if (e instanceof EntryAlreadyExistsError) {
-          return "AlreadyExists";
+          // 首次建用户可能已成功建组、但人员条目因 cn 等校验失败；此时应继续尝试 add 人员而非整体 409
+          req.log.warn("LDAP group %s already exists; continue to add user entry if missing", groupDn);
         } else {
           throw e;
         }

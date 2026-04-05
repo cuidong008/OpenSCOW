@@ -127,3 +127,33 @@ it("deploy ai", async () => {
 
   expect(composeConfig.services["mis-web"].environment).toContain("AI_URL=/ai");
 });
+
+it("deploy user-sync when mis is enabled", async () => {
+  const config = getInstallConfig(configPath);
+  config.portal = { basePath: "/", novncClientImage: "" };
+  config.mis = { basePath: "/mis", dbPassword: "must!chang3this", mysqlImage: "" };
+  config.userSync = {
+    userSyncApiToken: "test-token",
+    misScowApiToken: "mis-api-token",
+    portMappings: { userSync: 18080 },
+  };
+
+  const composeConfig = createComposeSpec(config);
+
+  expect(composeConfig.services["user-sync"]).toBeDefined();
+  expect(composeConfig.services["user-sync"].environment).toContain("SCOW_LAUNCH_APP=user-sync");
+  expect(composeConfig.services["user-sync"].environment).toContain("MIS_SERVER_URL=mis-server:5000");
+  expect(composeConfig.services["user-sync"].environment).toContain("USER_SYNC_API_TOKEN=test-token");
+  expect(composeConfig.services["user-sync"].environment).toContain("MIS_SCOW_API_TOKEN=mis-api-token");
+  expect(composeConfig.services["user-sync"].environment).toContain("AUTH_INTERNAL_URL=http://auth:5000");
+  expect(composeConfig.services["user-sync"].ports).toContain("18080:8080");
+  expect(composeConfig.services["user-sync"].depends_on).toContain("mis-server");
+});
+
+it("userSync without mis throws", async () => {
+  const config = getInstallConfig(configPath);
+  config.mis = undefined;
+  config.userSync = { userSyncApiToken: "x" };
+
+  expect(() => createComposeSpec(config)).toThrow(/userSync requires mis/);
+});

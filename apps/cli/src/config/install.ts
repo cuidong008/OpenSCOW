@@ -171,6 +171,20 @@ export const InstallConfigSchema = Type.Object({
     })),
   })),
 
+  userSync: Type.Optional(Type.Object({
+    userSyncApiToken: Type.String({
+      description: "外部系统调用 user-sync 时在 Authorization: Bearer 中使用的密钥",
+    }),
+    misScowApiToken: Type.Optional(Type.String({
+      description: "与 mis 配置 common.yaml 中 scowApi.apiToken 一致时填写，用于调用 MIS gRPC",
+    })),
+    portMappings: Type.Optional(Type.Object({
+      userSync: Type.Optional(Type.Union([Type.String(), Type.Integer()], {
+        description: "将 user-sync 的 HTTP 端口映射到宿主机（容器内为 8080）",
+      })),
+    })),
+  }, { description: "外部用户同步 HTTP 网关（user-sync），依赖已部署的 MIS" })),
+
   misc: Type.Optional(Type.Object({
     nodeOptions:  Type.Optional(Type.String({ description: "传递给node服务的参数" })),
   }, { description: "多个不好分类的配置参数参数" })),

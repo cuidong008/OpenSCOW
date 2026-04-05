@@ -10,7 +10,6 @@
  * See the Mulan PSL v2 for more details.
  */
 
-import { Divider } from "antd";
 import { styled } from "styled-components";
 
 const FooterContainer = styled.div`
@@ -24,39 +23,16 @@ const FooterContainer = styled.div`
 
 interface Props {
   text: string;
-  versionTag: string | undefined;
 }
 
-export const Footer: React.FC<Props> = ({ text, versionTag }) => {
-
-  const versionTagLink = versionTag
-    ? `https://github.com/PKUHPC/OpenSCOW/releases/tag/${versionTag}`
-    : "";
+export const Footer: React.FC<Props> = ({ text }) => {
+  if (!text) {
+    return null;
+  }
 
   return (
-    <>
-      <FooterContainer>
-        <span>Powered by&nbsp;
-          <a href="https://github.com/PKUHPC/OpenSCOW" target="_blank">
-            OpenSCOW
-          </a>
-          &nbsp;
-          <a href={versionTagLink} target="_blank">
-            {versionTag || ""}
-          </a>
-        </span>
-      </FooterContainer>
-      {
-        text && (
-          <>
-            <Divider style={{ marginTop: 0, marginBottom: 10 }} />
-            <FooterContainer
-              dangerouslySetInnerHTML={{ __html: text }}
-            />
-          </>
-        )
-      }
-    </>
+    <FooterContainer
+      dangerouslySetInnerHTML={{ __html: text }}
+    />
   );
 };
-

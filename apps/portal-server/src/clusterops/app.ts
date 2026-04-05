@@ -361,7 +361,7 @@ export const appOps = (cluster: string): AppOps => {
 
           if (!sessionMetadata) return;
 
-          const runningJobInfo: JobInfo | undefined = runningJobInfoMap[sessionMetadata.jobId];
+          const runningJobInfo = runningJobInfoMap[sessionMetadata.jobId];
 
           const app = apps[sessionMetadata.appId];
 

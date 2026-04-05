@@ -303,6 +303,28 @@ it("change user email", async () => {
   expect(getUserResp.json().user.mail).toEqual(newEmail);
 
 });
+
+it("change user display name", async () => {
+  await createUser();
+
+  const newName = "Updated Display Name";
+  const changeNameResp = await server.inject({
+    method: "PATCH",
+    url: "/user/name",
+    payload: { identityId: user.identityId, newName },
+  });
+
+  const getUserResp = await server.inject({
+    method: "GET",
+    url: "/user",
+    query: { identityId: user.identityId },
+  });
+
+  expect(changeNameResp.statusCode).toBe(204);
+  expect(getUserResp.statusCode).toBe(200);
+  expect(getUserResp.json().user.name).toEqual(newName);
+});
+
 it("check password", async () => {
   await createUser();
 
@@ -376,4 +398,25 @@ it("change password", async () => {
   });
   expect(notExistedResp.statusCode).toBe(404);
   expect(notExistedResp.json()).toBe(null);
+});
+
+it("delete user removes ldap user and group", async () => {
+  await createUser();
+
+  const delResp = await server.inject({
+    method: "DELETE",
+    url: "/user",
+    payload: { identityId: user.identityId },
+  });
+  expect(delResp.statusCode).toBe(204);
+
+  expect(await searchByDn(client, userDn)).toBeUndefined();
+  expect(await searchByDn(client, groupDn)).toBeUndefined();
+
+  const delAgain = await server.inject({
+    method: "DELETE",
+    url: "/user",
+    payload: { identityId: user.identityId },
+  });
+  expect(delAgain.statusCode).toBe(404);
 });

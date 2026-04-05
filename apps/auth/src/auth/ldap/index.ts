@@ -13,6 +13,8 @@
 import { FastifyInstance } from "fastify";
 import { AuthProvider } from "src/auth/AuthProvider";
 import { createUser } from "src/auth/ldap/createUser";
+import { deleteUser as ldapDeleteUser } from "src/auth/ldap/deleteUser";
+import { modifyDisplayNameAsSelf } from "src/auth/ldap/displayName";
 import { modifyEmailAsSelf } from "src/auth/ldap/email";
 import { findUser, useLdap } from "src/auth/ldap/helpers";
 import { checkPassword, modifyPassword } from "src/auth/ldap/password";
@@ -70,6 +72,32 @@ export const createLdapAuthProvider = (f: FastifyInstance) => {
         return result ? "OK" : "Wrong";
       });
     },
+    changeName: (() => {
+      const nameAttr = ldap.attrs.name;
+      if (!nameAttr) {
+        return undefined;
+      }
+      return async (id, newName, req) => {
+        const normalized =
+          typeof newName === "string" && newName.trim() !== "" ? newName.trim() : id;
+        return useLdap(req.log, ldap)(async (client) => {
+          const user = await findUser(req.log, ldap, client, id);
+          if (!user) {
+            return "NotFound";
+          }
+          const result = await modifyDisplayNameAsSelf(
+            req.log, ldap, user.dn, nameAttr, normalized,
+          );
+          if (!result) {
+            throw new Error("Failed to modify LDAP display name");
+          }
+          return "OK";
+        });
+      };
+    })(),
+    deleteUser: ldap.addUser ? async (identityId, req) => {
+      return ldapDeleteUser(identityId, req, ldap as RequiredBy<LdapConfigSchema, "addUser">);
+    } : undefined,
   } as AuthProvider;
 
 };

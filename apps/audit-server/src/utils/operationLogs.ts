@@ -125,11 +125,8 @@ export const checkCustomEventType = async (em: SqlEntityManager<MySqlDriver>, op
   });
 
   if (
-    !existTypeLog
-    || !existTypeLog.metaData
-    || !existTypeLog.metaData.$case
-    || existTypeLog.metaData.$case !== "customEvent"
-    || !existTypeLog.metaData.customEvent?.name?.i18n
+    existTypeLog?.metaData?.$case !== "customEvent"
+    || !existTypeLog?.metaData.customEvent?.name?.i18n
   ) {
     return;
   }

@@ -22,7 +22,6 @@ import { ExtensionManifestWithUrl } from "src/extensions/UiExtensionStore";
 import { antdBreakpoints } from "src/layouts/base/constants";
 import { BigScreenMenu } from "src/layouts/base/header/BigScreenMenu";
 import { HeaderItem, JumpToAnotherLink } from "src/layouts/base/header/components";
-import { Logo } from "src/layouts/base/header/Logo";
 import { UserIndicator } from "src/layouts/base/header/UserIndicator";
 import { NavItemProps, UserInfo, UserLink } from "src/layouts/base/types";
 import { NavIcon } from "src/layouts/icon";
@@ -88,7 +87,6 @@ interface Props {
   user: UserInfo | undefined;
   logout: (() => void) | undefined;
   pathname: string;
-  basePath: string;
   userLinks?: UserLink[];
   languageId: string;
   right?: React.ReactNode;
@@ -109,7 +107,7 @@ export const Header: React.FC<Props> = ({
   hasSidebar, routes,
   setSidebarCollapsed, sidebarCollapsed,
   pathname, user, logout,
-  basePath, userLinks,
+  userLinks,
   languageId, activeKeys,
   right, staticNavbarLinks,
   extensions,
@@ -187,7 +185,6 @@ export const Header: React.FC<Props> = ({
               </a>
             ) : <span />
           }
-          <Logo basePath={basePath} />
         </Space>
       </HeaderItem>
       <MenuPart>

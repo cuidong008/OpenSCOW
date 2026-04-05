@@ -17,3 +17,8 @@ fetchJobs:
 # 预定义的充值类型
 predefinedChargingTypes:
   - test
+
+createUser:
+  # 在OpenSCOW中关闭创建用户功能
+  enabled: false
+  #enabled: true

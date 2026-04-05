@@ -13,13 +13,10 @@
 "use client";
 import { Descriptions, Typography } from "antd";
 import { usePublicConfig } from "src/app/(auth)/context";
-import { ModalButton } from "src/components/ModalLink";
 import { Section } from "src/components/Section";
 import { antdBreakpoints } from "src/styles/constants";
 import { Head } from "src/utils/head";
 import { styled } from "styled-components";
-
-import { ChangePasswordModal } from "./ChangePasswordModal";
 
 const Container = styled.div`
   display: flex;
@@ -51,11 +48,9 @@ const TitleText = styled(Typography.Title)`
 }
 `;
 
-const ChangePasswordModalButton = ModalButton(ChangePasswordModal, { type: "link" });
-
 export default function Page() {
 
-  const { publicConfig, user } = usePublicConfig();
+  const { user } = usePublicConfig();
 
   return (
     <Container>
@@ -77,29 +72,6 @@ export default function Page() {
           </Descriptions.Item>
         </Descriptions>
       </Part>
-      {
-        publicConfig.ENABLE_CHANGE_PASSWORD ? (
-          <>
-            <TitleText>
-              修改密码
-            </TitleText>
-            <Part title>
-              <Descriptions
-                column={1}
-                labelStyle={{ paddingLeft:"10px", paddingTop:"5px" }}
-                contentStyle={{ paddingLeft:"10px" }}
-              >
-                <Descriptions.Item label="登录密码">
-                  <span style={{ width:"200px" }}>********</span>
-                  <ChangePasswordModalButton identityId={user.identityId}>
-                    修改密码
-                  </ChangePasswordModalButton>
-                </Descriptions.Item>
-              </Descriptions>
-            </Part>
-          </>
-        ) : undefined
-      }
     </Container>
   );
 }

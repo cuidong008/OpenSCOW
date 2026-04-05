@@ -1,0 +1,157 @@
+diff --git a/services/config/config.go b/services/config/config.go
+index c13ed59..3b2acba 100644
+--- a/services/config/config.go
++++ b/services/config/config.go
+@@ -306,8 +306,7 @@ func (s *ServerConfig) GetClusterConfig(ctx context.Context, in *pb.GetClusterCo
+ 				return nil, st.Err()
+ 			}
+ 			nodeName := strings.Join(strings.Split(nodeNameOutput, " "), "")
+-			gpusCmd := fmt.Sprintf(`scontrol show node=%s | grep ' Gres=' | awk -F':' '{if ($NF ~ /^[0-9]+$/) {print $NF} else {gsub(/[^0-9]/, "", $(NF-1)); print $(NF-1)}}'`, nodeName)
+-			gpusOutput, err := utils.RunCommand(gpusCmd)
++			gpusOutput, err := utils.GresGpuPerNodeCount(nodeName)
+ 			if err != nil || utils.CheckSlurmStatus(gpusOutput) {
+ 				errInfo := &errdetails.ErrorInfo{
+ 					Reason: "COMMAND_EXEC_FAILED",
+@@ -317,19 +316,13 @@ func (s *ServerConfig) GetClusterConfig(ctx context.Context, in *pb.GetClusterCo
+ 				caller.Logger.Errorf("GetClusterConfig failed: %v", st.Err())
+ 				return nil, st.Err()
+ 			}
+-			if gpusOutput == "Gres=(null)" {
+-				totalGpus = 0
+-			} else {
+-				// 字符串转整型
+-				perNodeGpuNum, _ := strconv.Atoi(gpusOutput)
+-				totalGpus = uint32(perNodeGpuNum) * uint32(totalNodeNumInt)
+-			}
++			perNodeGpuNum, _ := strconv.Atoi(gpusOutput)
++			totalGpus = uint32(perNodeGpuNum) * uint32(totalNodeNumInt)
+ 		} else {
+ 			if nodeArray[0] == "(null)" {
+ 				totalGpus = 0
+ 			} else {
+-				getGpusCmd := fmt.Sprintf(`scontrol show node=%s | grep ' Gres=' | awk -F':' '{if ($NF ~ /^[0-9]+$/) {print $NF} else {gsub(/[^0-9]/, "", $(NF-1)); print $(NF-1)}}'`, nodeArray[0])
+-				gpusOutput, err := utils.RunCommand(getGpusCmd)
++				gpusOutput, err := utils.GresGpuPerNodeCount(nodeArray[0])
+ 				if err != nil || utils.CheckSlurmStatus(gpusOutput) {
+ 					errInfo := &errdetails.ErrorInfo{
+ 						Reason: "COMMAND_EXEC_FAILED",
+@@ -339,12 +332,8 @@ func (s *ServerConfig) GetClusterConfig(ctx context.Context, in *pb.GetClusterCo
+ 					caller.Logger.Errorf("GetClusterConfig failed: %v", st.Err())
+ 					return nil, st.Err()
+ 				}
+-				if gpusOutput == "Gres=(null)" {
+-					totalGpus = 0
+-				} else {
+-					perNodeGpuNum, _ := strconv.Atoi(gpusOutput)
+-					totalGpus = uint32(perNodeGpuNum) * uint32(totalNodeNumInt)
+-				}
++				perNodeGpuNum, _ := strconv.Atoi(gpusOutput)
++				totalGpus = uint32(perNodeGpuNum) * uint32(totalNodeNumInt)
+ 			}
+ 		}
+ 
+@@ -688,8 +677,7 @@ func (s *ServerConfig) GetAvailablePartitions(ctx context.Context, in *pb.GetAva
+ 					return nil, st.Err()
+ 				}
+ 				nodeName := nodeNamePrefix + nodeNameSuffix
+-				gpusCmd := fmt.Sprintf(`scontrol show node=%s | grep ' Gres=' | awk -F':' '{if ($NF ~ /^[0-9]+$/) {print $NF} else {gsub(/[^0-9]/, "", $(NF-1)); print $(NF-1)}}'`, nodeName)
+-				gpusOutput, err := utils.RunCommand(gpusCmd)
++				gpusOutput, err := utils.GresGpuPerNodeCount(nodeName)
+ 				if err != nil || utils.CheckSlurmStatus(gpusOutput) {
+ 					errInfo := &errdetails.ErrorInfo{
+ 						Reason: "COMMAND_EXEC_FAILED",
+@@ -699,16 +687,10 @@ func (s *ServerConfig) GetAvailablePartitions(ctx context.Context, in *pb.GetAva
+ 					caller.Logger.Errorf("GetAvailablePartitions failed: %v", st.Err())
+ 					return nil, st.Err()
+ 				}
+-				if gpusOutput == "Gres=(null)" {
+-					totalGpus = 0
+-				} else {
+-					// 字符串转整型
+-					perNodeGpuNum, _ := strconv.Atoi(gpusOutput)
+-					totalGpus = uint32(perNodeGpuNum) * uint32(totalNodeNumInt)
+-				}
++				perNodeGpuNum, _ := strconv.Atoi(gpusOutput)
++				totalGpus = uint32(perNodeGpuNum) * uint32(totalNodeNumInt)
+ 			} else {
+-				getGpusCmd := fmt.Sprintf(`scontrol show node=%s | grep ' Gres=' | awk -F':' '{if ($NF ~ /^[0-9]+$/) {print $NF} else {gsub(/[^0-9]/, "", $(NF-1)); print $(NF-1)}}'`, nodeArray[0])
+-				gpusOutput, err := utils.RunCommand(getGpusCmd)
++				gpusOutput, err := utils.GresGpuPerNodeCount(nodeArray[0])
+ 				if err != nil || utils.CheckSlurmStatus(gpusOutput) {
+ 					errInfo := &errdetails.ErrorInfo{
+ 						Reason: "COMMAND_EXEC_FAILED",
+@@ -718,12 +700,8 @@ func (s *ServerConfig) GetAvailablePartitions(ctx context.Context, in *pb.GetAva
+ 					caller.Logger.Errorf("GetAvailablePartitions failed: %v", st.Err())
+ 					return nil, st.Err()
+ 				}
+-				if gpusOutput == "Gres=(null)" {
+-					totalGpus = 0
+-				} else {
+-					perNodeGpuNum, _ := strconv.Atoi(gpusOutput)
+-					totalGpus = uint32(perNodeGpuNum) * uint32(totalNodeNumInt)
+-				}
++				perNodeGpuNum, _ := strconv.Atoi(gpusOutput)
++				totalGpus = uint32(perNodeGpuNum) * uint32(totalNodeNumInt)
+ 			}
+ 
+ 			// 获取AllowQos
+diff --git a/utils/utils.go b/utils/utils.go
+index ed54399..51b57fe 100644
+--- a/utils/utils.go
++++ b/utils/utils.go
+@@ -586,6 +586,55 @@ func CheckSlurmStatus(result string) bool {
+ 	}
+ }
+ 
++// GresGpuPerNodeCount parses `scontrol show node` and returns per-node GPU count as a decimal string.
++// When Slurm reports Gres=(null), the historical `grep … | awk …` pipeline can exit non-zero (awk error) and break RPCs.
++func GresGpuPerNodeCount(node string) (string, error) {
++	out, err := RunCommand(fmt.Sprintf("scontrol show node=%s", node))
++	if err != nil {
++		return "", err
++	}
++	if CheckSlurmStatus(out) {
++		return "", fmt.Errorf("slurm error in scontrol output")
++	}
++	for _, raw := range strings.Split(out, "\n") {
++		line := strings.TrimSpace(raw)
++		if !strings.HasPrefix(line, "Gres=") {
++			continue
++		}
++		val := strings.TrimSpace(strings.TrimPrefix(line, "Gres="))
++		if val == "(null)" {
++			return "0", nil
++		}
++		if strings.HasPrefix(val, "gpu:") {
++			num := strings.TrimPrefix(val, "gpu:")
++			digits := ""
++			for _, r := range num {
++				if r >= '0' && r <= '9' {
++					digits += string(r)
++				} else {
++					break
++				}
++			}
++			if digits == "" {
++				return "0", nil
++			}
++			return digits, nil
++		}
++		parts := strings.Split(val, ":")
++		for i := len(parts) - 1; i >= 0; i-- {
++			p := strings.TrimSpace(parts[i])
++			if p == "" {
++				continue
++			}
++			if n, e := strconv.Atoi(p); e == nil && n >= 0 {
++				return strconv.Itoa(n), nil
++			}
++		}
++		return "0", nil
++	}
++	return "0", nil
++}
++
+ func ExtractValue(input, key string) string {
+ 	// 构建匹配键值对的正则表达式
+ 	pattern := fmt.Sprintf("%s=([^\\s]+)", key)

@@ -21,10 +21,15 @@ import { styled } from "styled-components";
 const LogoContainer = styled.h1`
   color: var(--ant-primary-color);
   margin-bottom: 0;
+`;
 
-  img {
-    margin-bottom: 4px;
-  }
+/** Show only the left icon region of wide logo assets (crop wordmark on the right). */
+const LogoImage = styled.img`
+  height: 40px;
+  width: 40px;
+  object-fit: cover;
+  object-position: left center;
+  margin-bottom: 4px;
 `;
 
 export const Logo = () => {
@@ -39,7 +44,7 @@ export const Logo = () => {
       <Link href="/">
         {
           data ? (
-            <img src={join(data.BASE_PATH, "/api/logo?" + query.toString())} alt="logo" height={40} />
+            <LogoImage src={join(data.BASE_PATH, "/api/logo?" + query.toString())} alt="logo" />
           ) : undefined
         }
       </Link>

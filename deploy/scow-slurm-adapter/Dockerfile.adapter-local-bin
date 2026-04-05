@@ -1,0 +1,16 @@
+# 仅包含本地下载/编译的 scow-slurm-adapter-amd64，供 Dockerfile.sssd 作为 BASE_IMAGE。
+# 构建上下文目录须为 deploy/scow-slurm-adapter（与二进制同目录）。
+#
+#   docker build -f Dockerfile.adapter-local-bin -t scow-slurm-adapter-base:local .
+#   docker build -f Dockerfile.sssd --build-arg BASE_IMAGE=scow-slurm-adapter-base:local -t scow-slurm-adapter-sssd:local .
+#
+# 二进制路径：./scow-slurm-adapter-amd64（勿提交 Git，见 .dockerignore / .gitignore）
+FROM ubuntu:noble
+WORKDIR /app
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
+COPY scow-slurm-adapter-amd64 /app/scow-slurm-adapter-amd64
+RUN chmod 755 /app/scow-slurm-adapter-amd64
+# 与 PKUHPC 常见部署一致：运行时 config 由 K8s ConfigMap 挂到 /app/config
+CMD ["/app/scow-slurm-adapter-amd64"]

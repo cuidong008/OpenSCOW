@@ -7,7 +7,7 @@
   "private": true,
   "scripts": {
     "dev": "node -r ts-node/register -r tsconfig-paths/register src/index.ts",
-    "build": "rimraf build && tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json && pkg --compress GZip --no-bytecode --public-packages \"*\" --public .",
+    "build": "rimraf build && tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json && pkg --compress GZip --no-bytecode --public-packages \"*\" --public --targets \"${PKG_CLI_TARGETS:-node18-linux-x64}\" .",
     "test": "jest",
     "lint": "eslint -c ../../eslint.config.js ."
   },

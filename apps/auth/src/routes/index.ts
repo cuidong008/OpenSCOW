@@ -12,9 +12,11 @@
 
 import { getCapabilitiesRoute } from "src/routes/capabilities";
 import { changeEmailRoute } from "src/routes/changeEmail";
+import { changeNameRoute } from "src/routes/changeName";
 import { changePasswordRoute } from "src/routes/changePassword";
 import { checkPasswordRoute } from "src/routes/checkPassword";
 import { createUserRoute } from "src/routes/createUser";
+import { deleteUserRoute } from "src/routes/deleteUser";
 import { getUserRoute } from "src/routes/getUser";
 import { logoutRoute } from "src/routes/logout";
 
@@ -27,10 +29,12 @@ export const routes = [
   authCallbackRoute,
   validateTokenRoute,
   createUserRoute,
+  deleteUserRoute,
   changePasswordRoute,
   logoutRoute,
   getCapabilitiesRoute,
   getUserRoute,
   changeEmailRoute,
+  changeNameRoute,
   checkPasswordRoute,
 ];

@@ -58,11 +58,10 @@ type Props = PropsWithChildren<{
   user?: ClientUserInfo | undefined;
   headerRightContent?: React.ReactNode;
   footerText?: string;
-  versionTag?: string | undefined;
 }>;
 
 export const BaseLayout: React.FC<PropsWithChildren<Props>> = ({
-  routes = [], children, user = undefined, headerRightContent, versionTag, footerText,
+  routes = [], children, user = undefined, headerRightContent, footerText,
 }) => {
 
   const pathname = usePathname() ?? "";
@@ -109,7 +108,7 @@ export const BaseLayout: React.FC<PropsWithChildren<Props>> = ({
           <Content>
             {children}
           </Content>
-          <Footer text={footerText ?? ""} versionTag={versionTag} />
+          <Footer text={footerText ?? ""} />
         </ContentPart>
       </StyledLayout>
     </Root>
