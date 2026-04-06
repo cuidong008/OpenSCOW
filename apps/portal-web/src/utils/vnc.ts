@@ -11,13 +11,13 @@
  */
 
 import { joinWithUrl } from "@scow/utils";
-import { join } from "path";
+import { joinUrlPath } from "@scow/utils";
 import { publicConfig } from "src/utils/config";
 
 export const openDesktop = (clusterId: string, node: string, port: number, password: string) => {
 
   const params = new URLSearchParams({
-    path: join(publicConfig.BASE_PATH, "/api/proxy", clusterId, "absolute", node, String(port)),
+    path: joinUrlPath(publicConfig.BASE_PATH || "/", "/api/proxy", clusterId, "absolute", node, String(port)),
     host: location.hostname,
     port: location.port,
     password: password,

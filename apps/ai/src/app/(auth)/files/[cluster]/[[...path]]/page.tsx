@@ -13,8 +13,8 @@
 "use client";
 
 import { getI18nConfigCurrentText } from "@scow/lib-web/build/utils/systemLanguage";
+import { joinUrlPath } from "@scow/utils";
 import { useRouter } from "next/navigation";
-import { join } from "path";
 import { useEffect, useMemo } from "react";
 import { usePublicConfig } from "src/app/(auth)/context";
 import { FileManager } from "src/app/(auth)/files/FileManager";
@@ -45,7 +45,7 @@ export default function Page({ params }: { params: { cluster: string; resourceId
     enabled: fullPath === "~",
     onSuccess: ({ path }) => {
       if (decodePathParts && decodePathParts.length === 1 && decodePathParts[0] === "~") {
-        router.push(join("/files", cluster, path));
+        router.push(joinUrlPath("/files", cluster, path.replace(/^\/+/, "")));
       }
     },
   });

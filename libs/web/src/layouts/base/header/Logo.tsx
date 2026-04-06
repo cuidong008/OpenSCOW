@@ -10,8 +10,8 @@
  * See the Mulan PSL v2 for more details.
  */
 
+import { joinUrlPath } from "@scow/utils";
 import Link from "next/link";
-import { join } from "path";
 import { useDarkMode } from "src/layouts/darkMode";
 import { styled } from "styled-components";
 
@@ -46,7 +46,7 @@ export const Logo: React.FC<Props> = ({ basePath }) => {
   return (
     <LogoContainer>
       <Link href="/">
-        <LogoImage alt="logo" src={join(basePath, "/api/logo?" + query.toString())} />
+        <LogoImage alt="logo" src={joinUrlPath(basePath || "/", "/api/logo?" + query.toString())} />
       </Link>
     </LogoContainer>
   );

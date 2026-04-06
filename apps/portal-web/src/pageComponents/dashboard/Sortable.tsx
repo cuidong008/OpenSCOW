@@ -26,9 +26,9 @@ import {
   rectSortingStrategy,
   SortableContext } from "@dnd-kit/sortable";
 import { Entry } from "@scow/protos/build/portal/dashboard";
+import { joinUrlPath } from "@scow/utils";
 import { message } from "antd";
 import { useRouter } from "next/router";
-import { join } from "path";
 import { FC, useCallback, useEffect, useMemo, useState } from "react";
 import { api } from "src/apis";
 import { ClusterNotAvailablePage } from "src/components/errorPages/ClusterNotAvailablePage";
@@ -153,7 +153,7 @@ export const Sortable: FC<Props> = ({
 
           case "shell": {
             const savedShellClusterId = item.entry.shell.clusterId;
-            router.push(join("/shell", savedShellClusterId, item.entry.shell.loginNode));
+            router.push(joinUrlPath("/shell", savedShellClusterId, item.entry.shell.loginNode));
             if (!currentClusters.some((x) => x.id === savedShellClusterId)) {
               return <ClusterNotAvailablePage />;
             }
@@ -163,7 +163,7 @@ export const Sortable: FC<Props> = ({
 
             const savedAppClusterId = item.entry.app.clusterId;
             router.push(
-              join("/apps", savedAppClusterId, "/create", item.entry.app.appId),
+              joinUrlPath("/apps", savedAppClusterId, "create", item.entry.app.appId),
             );
             if (!currentClusters.some((x) => x.id === savedAppClusterId)) {
               return <ClusterNotAvailablePage />;

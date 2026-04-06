@@ -10,7 +10,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
-import { join } from "path";
+import { joinServiceBaseUrl } from "@scow/utils";
 
 export interface Capabilities {
   createUser?: boolean;
@@ -33,5 +33,5 @@ export interface Capabilities {
  * @returns auth capabilities
  */
 export async function getCapabilities(authUrl: string): Promise<Capabilities> {
-  return await (await fetch(join(authUrl, "/capabilities"))).json() as Capabilities;
+  return await (await fetch(joinServiceBaseUrl(authUrl, "/capabilities"))).json() as Capabilities;
 }

@@ -13,8 +13,8 @@
 "use client";
 
 import { parsePlaceholder } from "@scow/lib-config/build/parse";
+import { joinUrlPath } from "@scow/utils";
 import { App } from "antd";
-import { join } from "path";
 import { useEffect } from "react";
 import { DisabledA } from "src/components/DisabledA";
 import { AppSession } from "src/server/trpc/route/jobs/apps";
@@ -74,7 +74,15 @@ export const ConnectTopAppLink: React.FC<Props> = ({
       const query = connect.query ? interpolateValues(connect.query) : {};
       const formData = connect.formData ? interpolateValues(connect.formData) : undefined;
 
-      const pathname = join(BASE_PATH, "/api/proxy", cluster, proxyType, host, String(port), path);
+      const pathname = joinUrlPath(
+        BASE_PATH || "/",
+        "/api/proxy",
+        cluster,
+        proxyType,
+        host,
+        String(port),
+        path.replace(/^\/+/, ""),
+      );
 
       const url = pathname + "?" + new URLSearchParams(query).toString();
 

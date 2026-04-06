@@ -13,6 +13,7 @@
 import { asyncClientCall } from "@ddadaal/tsgrpc-client";
 import { Status } from "@grpc/grpc-js/build/src/constants";
 import { SchedulerAdapterClient } from "@scow/lib-scheduler-adapter";
+import type { GetAppConnectionInfoResponse } from "@scow/scheduler-adapter-protos/build/protos/app";
 import { ApiVersion } from "@scow/utils/build/version";
 import { quote } from "shell-quote";
 import { Logger } from "ts-log";
@@ -23,7 +24,7 @@ export const getAppConnectionInfoFromAdapter = async (
   client: SchedulerAdapterClient,
   jobId: number,
   logger: Logger,
-) => {
+): Promise<GetAppConnectionInfoResponse | undefined> => {
   const minRequiredApiVersion: ApiVersion = { major: 1, minor: 3, patch: 0 };
   try {
     await checkSchedulerApiVersion(client, minRequiredApiVersion);

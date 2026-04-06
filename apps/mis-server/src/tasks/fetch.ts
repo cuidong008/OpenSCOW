@@ -44,7 +44,6 @@ async function getClusterLatestDate(em: SqlEntityManager, cluster: string, logge
 }
 
 const processGetJobsResult = (cluster: string, result: GetJobsResponse) => {
-  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   const jobs: ({ cluster: string } & ClusterJobInfo)[] = [];
   result.jobs.forEach((job) => {
     jobs.push({
@@ -53,10 +52,10 @@ const processGetJobsResult = (cluster: string, result: GetJobsResponse) => {
     });
   });
 
-  // sort by end time
+  // sort by end time（adapter 可能省略 endTime，按 0 参与排序）
   jobs.sort((a, b) => {
-    const endTimeA = new Date(a.endTime).getTime();
-    const endTimeB = new Date(b.endTime).getTime();
+    const endTimeA = a.endTime != null ? new Date(a.endTime).getTime() : 0;
+    const endTimeB = b.endTime != null ? new Date(b.endTime).getTime() : 0;
     return endTimeA - endTimeB;
   });
 
@@ -80,7 +79,6 @@ export async function fetchJobs(
 
   const priceMap = await createPriceMap(em, clusterPlugin.clusters, logger);
 
-  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   const persistJobAndCharge = async (jobs: ({ cluster: string } & ClusterJobInfo)[]) => {
     const result = await em.transactional(async (em) => {
 
@@ -248,7 +246,6 @@ export async function fetchJobs(
             }),
           ).then((result) => processGetJobsResult(cluster, result));
 
-          // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
           let currentJobsGroup: ({ cluster: string } & ClusterJobInfo)[] = [];
           let previousDate: string | null = null;
           let savedJobsCount = 0;

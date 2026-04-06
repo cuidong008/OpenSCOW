@@ -10,7 +10,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
-import { joinUrlPath, joinWithUrl, normalizePathnameWithQuery } from "src/url";
+import { joinServiceBaseUrl, joinUrlPath, joinWithUrl, normalizePathnameWithQuery } from "src/url";
 
 it.each([
   [["/hpc", "/api/auth/callback"], "/hpc/api/auth/callback"],
@@ -22,6 +22,15 @@ it.each([
 });
 
 it.each([
+  ["http://auth:5000", "/capabilities", "http://auth:5000/capabilities"],
+  ["http://gateway/hpc/auth", "/user", "http://gateway/hpc/auth/user"],
+  ["auth:5000", "/checkPassword", "auth:5000/checkPassword"],
+])("joinServiceBaseUrl(%s, %s) -> %s", (base, seg, expected) => {
+  expect(joinServiceBaseUrl(base, seg)).toBe(expected);
+});
+
+it.each([
+  [["/hpc", "/__public__/"], "/hpc/__public__"],
   [["http://example.com", "foo"], "http://example.com/foo"],
   [["example.com", "foo"], "example.com/foo"],
   [["http://example.com/test", "foo"], "http://example.com/test/foo"],

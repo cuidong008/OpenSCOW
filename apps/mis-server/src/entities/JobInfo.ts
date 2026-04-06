@@ -17,6 +17,9 @@ import { DECIMAL_DEFAULT_RAW, DecimalType } from "src/utils/decimal";
 
 const UNKNOWN_PRICE_ITEM = "UNKNOWN";
 
+/** Proto 时间字段可选时的回退，避免 Invalid Date 与 DB 非空约束冲突 */
+const FALLBACK_TIME_ISO = "1970-01-01T00:00:00.000Z";
+
 export interface JobPriceInfo {
   tenant: { billingItemId: string; price: Decimal; } | undefined;
   account: { billingItemId: string; price: Decimal; } | undefined;
@@ -117,7 +120,6 @@ export class JobInfo {
 
 
   constructor(
-    // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
     job: { cluster: string } & ClusterJobInfo,
     tenant: string | undefined,
     jobPriceInfo: JobPriceInfo,
@@ -141,8 +143,18 @@ export class JobInfo {
     this.nodesAlloc = job.nodesAlloc!;
     this.timelimit = job.timeLimitMinutes;
     this.timeUsed = job.elapsedSeconds!;
-    this.timeWait = job.startTime ? ((new Date(job.startTime)).getTime() - (new Date(job.submitTime)).getTime()) / 1000
-      : ((new Date(job.endTime)).getTime() - (new Date(job.submitTime)).getTime()) / 1000;
+    const submitMs = job.submitTime != null ? new Date(job.submitTime).getTime() : NaN;
+    if (Number.isFinite(submitMs)) {
+      if (job.startTime != null) {
+        this.timeWait = (new Date(job.startTime).getTime() - submitMs) / 1000;
+      } else if (job.endTime != null) {
+        this.timeWait = (new Date(job.endTime).getTime() - submitMs) / 1000;
+      } else {
+        this.timeWait = 0;
+      }
+    } else {
+      this.timeWait = 0;
+    }
     this.qos = job.qos;
 
     this.tenantPrice = jobPriceInfo.tenant?.price ?? new Decimal(0);
@@ -150,8 +162,10 @@ export class JobInfo {
     this.accountPrice = jobPriceInfo.account?.price ?? new Decimal(0);
     this.accountBillingItemId = jobPriceInfo.account?.billingItemId ?? UNKNOWN_PRICE_ITEM;
 
-    this.timeSubmit = new Date(job.submitTime);
-    this.timeStart = job.startTime ? new Date(job.startTime) : undefined;
-    this.timeEnd = new Date(job.endTime);
+    const submitIso = job.submitTime ?? job.endTime ?? job.startTime ?? FALLBACK_TIME_ISO;
+    this.timeSubmit = new Date(submitIso);
+    this.timeStart = job.startTime != null ? new Date(job.startTime) : undefined;
+    const endIso = job.endTime ?? job.startTime ?? job.submitTime ?? FALLBACK_TIME_ISO;
+    this.timeEnd = new Date(endIso);
   }
 }

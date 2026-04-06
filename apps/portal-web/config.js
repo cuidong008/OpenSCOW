@@ -14,6 +14,7 @@
 
 const { envConfig, str, bool } = require("@scow/lib-config");
 const { join } = require("path");
+const { joinUrlPath } = require("@scow/utils/build/url");
 const { homedir } = require("os");
 const { PHASE_DEVELOPMENT_SERVER,
   PHASE_PRODUCTION_SERVER, PHASE_TEST } = require("next/constants");
@@ -200,7 +201,7 @@ const buildRuntimeConfig = async (phase, basePath) => {
 
     // HACK setup ws proxy
     setTimeout(() => {
-      const url = `http://localhost:${process.env.PORT || 3000}${join(basePath, "/api/setup")}`;
+      const url = `http://localhost:${process.env.PORT || 3000}${joinUrlPath(basePath || "/", "/api/setup")}`;
       console.log("Calling setup url to initialize proxy and shell server", url);
 
       fetch(url).then(async (res) => {

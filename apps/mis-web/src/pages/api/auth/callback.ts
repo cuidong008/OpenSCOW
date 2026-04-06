@@ -13,6 +13,7 @@
 import { Type, typeboxRoute, typeboxRouteSchema } from "@ddadaal/next-typed-api-routes-runtime";
 import { OperationType } from "@scow/lib-operation-log";
 import { redirectToAuthLogin } from "@scow/lib-web/build/routes/auth/redirectToLogin";
+import { joinUrlPath } from "@scow/utils";
 import { setTokenCookie } from "src/auth/cookie";
 import { validateToken } from "src/auth/token";
 import { OperationResult } from "src/models/operationLog";
@@ -53,7 +54,7 @@ export default typeboxRoute(AuthCallbackSchema, async (req, res) => {
       };
       await callLog(logInfo, OperationResult.SUCCESS);
     }
-    res.redirect(publicConfig.BASE_PATH);
+    res.redirect(joinUrlPath(publicConfig.BASE_PATH || "/", "/dashboard"));
   } else {
     redirectToAuthLogin(req, res, runtimeConfig.PROTOCOL, publicConfig.BASE_PATH, runtimeConfig.AUTH_EXTERNAL_URL);
   }

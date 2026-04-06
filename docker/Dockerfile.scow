@@ -44,13 +44,12 @@ RUN pnpm i --offline --frozen-lockfile
 
 RUN node scripts/createVersionFile.mjs version.json
 
-# pkg 在 Alpine 构建环境中只能产出 node*-alpine-*（musl）；使用 node*-linux-*（glibc）会在缓存未命中时报错：
-#   "Not able to build for 'linux' here, only for 'alpine'"
-# 默认与 runner 的 node:alpine 一致，打 node18-alpine-x64。
-# 需要 glibc 的 linux 可执行文件时：请改用 debian 系 builder，或传
-#   --build-arg PKG_CLI_TARGETS=node18-linux-x64[,node18-linux-arm64]
-# 构建 arm64 镜像时：--build-arg PKG_CLI_TARGETS=node18-alpine-arm64
-ARG PKG_CLI_TARGETS=node18-linux-x64
+# @scow/cli 使用 pkg/pkg-fetch：在 Alpine 上勿用 node*-linux-*（glibc）目标（缓存未命中时会报 only for 'alpine'）。
+# 勿默认 node*-alpine-*：官方预构建若未命中会走「从源码编 Node」，pkg-fetch 在非交互环境易触发进度条相关断言失败。
+# 使用 node*-linuxstatic-*：pkg-fetch 对 node18 提供预构建，通常直接下载；静态链接二进制可在 Alpine runner 上运行。
+# 需要 glibc 动态链接的 CLI 时：请改用 debian 系 builder，或传 --build-arg PKG_CLI_TARGETS=node18-linux-x64
+# 构建 arm64 镜像时：--build-arg PKG_CLI_TARGETS=node18-linuxstatic-arm64
+ARG PKG_CLI_TARGETS=node18-linuxstatic-x64
 ENV PKG_CLI_TARGETS=${PKG_CLI_TARGETS}
 
 # 与 install.yaml 中 compose 注入的路径一致：portal-web 为 join(basePath, portal.basePath)，mis-web 为 join(basePath, mis.basePath)。

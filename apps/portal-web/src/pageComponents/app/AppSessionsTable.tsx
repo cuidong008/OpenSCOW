@@ -15,10 +15,10 @@ import { compareDateTime, formatDateTime } from "@scow/lib-web/build/utils/datet
 import { compareNumber, compareTimeAsSeconds } from "@scow/lib-web/build/utils/math";
 import { DEFAULT_PAGE_SIZE } from "@scow/lib-web/build/utils/pagination";
 import type { AppSession } from "@scow/protos/build/portal/app";
+import { joinUrlPath } from "@scow/utils";
 import { App, Button, Checkbox, Form, Input, Popconfirm, Space, Table, TableColumnsType, Tooltip } from "antd";
 import type { CheckboxChangeEvent } from "antd/es/checkbox";
 import { useRouter } from "next/router";
-import { join } from "path";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useAsync } from "react-async";
 import { api } from "src/apis";
@@ -192,7 +192,7 @@ export const AppSessionsTable: React.FC<Props> = ({ cluster }) => {
             ) : undefined
           }
           <a onClick={() => {
-            router.push(join("/files", cluster.id, record.dataPath));
+            router.push(joinUrlPath("/files", cluster.id, record.dataPath.replace(/^\/+/, "")));
           }}
           >
             {t(p("table.linkToPath"))}

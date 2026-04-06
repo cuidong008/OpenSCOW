@@ -146,6 +146,7 @@ it("deploy user-sync when mis is enabled", async () => {
   expect(composeConfig.services["user-sync"].environment).toContain("USER_SYNC_API_TOKEN=test-token");
   expect(composeConfig.services["user-sync"].environment).toContain("MIS_SCOW_API_TOKEN=mis-api-token");
   expect(composeConfig.services["user-sync"].environment).toContain("AUTH_INTERNAL_URL=http://auth:5000");
+  expect(composeConfig.services.auth.environment).toContain("TRUSTED_SESSION_ISSUE_TOKEN=test-token");
   expect(composeConfig.services["user-sync"].ports).toContain("18080:8080");
   expect(composeConfig.services["user-sync"].depends_on).toContain("mis-server");
 });

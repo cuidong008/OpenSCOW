@@ -10,11 +10,10 @@
  * See the Mulan PSL v2 for more details.
  */
 
-import { normalizePathnameWithQuery } from "@scow/utils";
+import { joinUrlPath, normalizePathnameWithQuery } from "@scow/utils";
 import { IncomingMessage } from "http";
 import httpProxy from "http-proxy";
 import { NextApiRequest } from "next";
-import { join } from "path";
 import { getUserInfo } from "src/server/auth/server";
 import { clusters } from "src/server/trpc/route/config";
 import { BASE_PATH } from "src/utils/processEnv";
@@ -81,7 +80,7 @@ export const setupWssProxy = (req: NextApiRequest) => {
 
     const url = normalizePathnameWithQuery(req.url!);
 
-    if (!url.startsWith(join(BASE_PATH, "/api/proxy"))) {
+    if (!url.startsWith(joinUrlPath(BASE_PATH || "/", "/api/proxy"))) {
       return;
     }
 

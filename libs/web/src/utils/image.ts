@@ -10,7 +10,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
-import { join } from "path";
+import { joinUrlPath } from "@scow/utils";
 
 /**
  * Add base path to image object from next.js
@@ -18,4 +18,9 @@ import { join } from "path";
  * @param basePath base path of the image
  * @returns an image object with the base path added to the src
  */
-export const addBasePathToImage = (image: any, basePath: string) => ({ ...image, src: join(basePath, image.src) });
+export const addBasePathToImage = (image: any, basePath: string) => ({
+  ...image,
+  src: /^https?:\/\//i.test(String(image.src ?? ""))
+    ? image.src
+    : joinUrlPath(basePath || "/", String(image.src ?? "")),
+});

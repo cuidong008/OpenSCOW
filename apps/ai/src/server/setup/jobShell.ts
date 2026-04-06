@@ -14,6 +14,7 @@ import { asyncClientCall } from "@ddadaal/tsgrpc-client";
 import * as k8sClient from "@kubernetes/client-node";
 import { JobInfo_PodStatus } from "@scow/ai-scheduler-adapter-protos/build/protos/job";
 import { normalizePathnameWithQuery } from "@scow/utils";
+import { joinUrlPath } from "@scow/utils";
 import { IncomingMessage } from "http";
 import { NextApiRequest } from "next";
 import { join } from "path";
@@ -253,7 +254,7 @@ export const setupJobShellServer = (req: NextApiRequest) => {
   (req.socket as any).server.on("upgrade", async (req: IncomingMessage,
     socket: any, head: any) => {
     const url = normalizePathnameWithQuery(req.url!);
-    if (!url.startsWith(join(BASE_PATH, "/api/jobShell"))) {
+    if (!url.startsWith(joinUrlPath(BASE_PATH || "/", "/api/jobShell"))) {
       return;
     }
 

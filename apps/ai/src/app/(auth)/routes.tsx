@@ -17,7 +17,7 @@ import { BookOutlined, DashboardOutlined,
   PlusOutlined, ShareAltOutlined, UngroupOutlined } from "@ant-design/icons";
 import { NavIcon } from "@scow/lib-web/build/layouts/icon";
 import { getI18nConfigCurrentText } from "@scow/lib-web/build/utils/systemLanguage";
-import { join } from "path";
+import { joinUrlPath } from "@scow/utils";
 import { NavItemProps } from "src/layouts/base/NavItemProps";
 import { ClientUserInfo } from "src/server/trpc/route/auth";
 import { Cluster, NavLink, PublicConfig } from "src/server/trpc/route/config";
@@ -171,7 +171,7 @@ export const userRoutes: (
         return {
           Icon: !link.iconPath ? LinkOutlined : (
             <NavIcon
-              src={join(publicConfig.PUBLIC_PATH, link.iconPath)}
+              src={joinUrlPath(publicConfig.PUBLIC_PATH || "/", link.iconPath)}
             />
           ),
           text: link.text,
@@ -184,7 +184,7 @@ export const userRoutes: (
           }) => ({
             Icon: !childLink.iconPath ? LinkOutlined : (
               <NavIcon
-                src={join(publicConfig.PUBLIC_PATH, childLink.iconPath)}
+                src={joinUrlPath(publicConfig.PUBLIC_PATH || "/", childLink.iconPath)}
               />
             ),
             text: childLink.text,

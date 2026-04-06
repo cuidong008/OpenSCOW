@@ -11,6 +11,7 @@
  */
 
 import { debounce } from "@scow/lib-web/build/utils/debounce";
+import { joinUrlPath } from "@scow/utils";
 import { FitAddon } from "@xterm/addon-fit";
 import { Terminal } from "@xterm/xterm";
 import { join } from "path";
@@ -72,7 +73,7 @@ export const Shell: React.FC<Props> = ({ user, cluster, loginNode, path }) => {
 
       const socket = new WebSocket(
         (location.protocol === "http:" ? "ws" : "wss") + "://" + location.host +
-        join(publicConfig.BASE_PATH, "/api/shell") + "?" + new URLSearchParams(payload).toString(),
+        joinUrlPath(publicConfig.BASE_PATH || "/", "/api/shell") + "?" + new URLSearchParams(payload).toString(),
       );
 
       socket.onopen = () => {
@@ -113,7 +114,7 @@ export const Shell: React.FC<Props> = ({ user, cluster, loginNode, path }) => {
               const path = result.substring(pathStartIndex);
 
               if (result.includes(OPEN_EXPLORER_PREFIX)) {
-                window.open(join(publicConfig.BASE_PATH, "/files", cluster, path));
+                window.open(joinUrlPath(publicConfig.BASE_PATH || "/", "/files", cluster, path.replace(/^\/+/, "")));
               } else if (result.includes(DOWNLOAD_FILE_PREFIX)) {
                 const fileStartIndex = result.search(DOWNLOAD_FILE_PREFIX);
                 const fileEndIndex = result.search(DOWNLOAD_FILE_SUFFIX);
@@ -123,9 +124,15 @@ export const Shell: React.FC<Props> = ({ user, cluster, loginNode, path }) => {
                 const fileStartIndex = result.search(EDIT_FILE_PREFIX);
                 const fileEndIndex = result.search(EDIT_FILE_SUFFIX);
                 const file = result.substring(fileStartIndex + EDIT_FILE_PREFIX.length, fileEndIndex);
-                window.open(join(publicConfig.BASE_PATH, "/files", cluster, path + "?edit=" + file));
+                const editPath = `${path.replace(/^\/+/, "")}?edit=${file}`;
+                window.open(
+                  joinUrlPath(publicConfig.BASE_PATH || "/", "/files", cluster, editPath),
+                );
               } else if (result.includes(UPLOAD_FILE_PREFIX)) {
-                window.open(join(publicConfig.BASE_PATH, "/files", cluster, path + "?uploadModalOpen=true"));
+                const uploadPath = `${path.replace(/^\/+/, "")}?uploadModalOpen=true`;
+                window.open(
+                  joinUrlPath(publicConfig.BASE_PATH || "/", "/files", cluster, uploadPath),
+                );
               }
             }
             term.write(data);

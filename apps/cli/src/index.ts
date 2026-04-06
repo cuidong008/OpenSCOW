@@ -14,7 +14,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import { readFileSync } from "fs";
-import { join } from "path";
+import { basename, join } from "path";
 import { checkConfig } from "src/cmd/checkConfig";
 import { runCompose } from "src/cmd/compose";
 import { enterDb } from "src/cmd/db";
@@ -28,11 +28,57 @@ import { viewInstall } from "src/cmd/viewInstall";
 import { hideBin } from "yargs/helpers";
 import yargs from "yargs/yargs";
 
+/** 与下方 .command 名称一致；用于还原 pkg 对首个参数做的 path.resolve。 */
+const SCOW_CLI_SUBCOMMANDS = new Set([
+  "view-install",
+  "check-config",
+  "init",
+  "update",
+  "generate",
+  "db",
+  "audit-db",
+  "ai-db",
+  "compose",
+  "migrate",
+  "completion",
+]);
 
+interface PkgMeta {
+  defaultEntrypoint?: string;
+  entrypoint?: string;
+}
+
+/**
+ * - Node：`[node, 脚本, 子命令, …]` → hideBin = slice(2)。
+ * - pkg 且 argv[1] 为 snapshot 入口：`[exe, …/build/index.js, 子命令, …]` → slice(2)。
+ * - pkg 且 PKG_EXECPATH 分支：首个用户词被 path.resolve，子命令需用 basename 还原。
+ */
+function argvForYargs(): string[] {
+  const proc = process as NodeJS.Process & { pkg?: PkgMeta };
+  if (proc.pkg === undefined) {
+    return hideBin(process.argv);
+  }
+  const { argv } = process;
+  const snapshotMain = proc.pkg.defaultEntrypoint ?? proc.pkg.entrypoint;
+  if (snapshotMain !== undefined && argv[1] === snapshotMain) {
+    return argv.slice(2);
+  }
+  const rest = argv.slice(1);
+  const first = rest[0];
+  if (
+    first &&
+    first.startsWith("/") &&
+    !first.endsWith(".js") &&
+    SCOW_CLI_SUBCOMMANDS.has(basename(first))
+  ) {
+    rest[0] = basename(first);
+  }
+  return rest;
+}
 
 const version = JSON.parse(readFileSync(join(__dirname, "../package.json"), "utf-8")).version;
 
-void yargs(hideBin(process.argv))
+void yargs(argvForYargs())
   .options({
     configPath: {
       alias: "c",

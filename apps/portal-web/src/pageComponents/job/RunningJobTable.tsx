@@ -12,9 +12,9 @@
 
 import { compareTimeAsSeconds } from "@scow/lib-web/build/utils/math";
 import { DEFAULT_PAGE_SIZE } from "@scow/lib-web/build/utils/pagination";
+import { joinUrlPath } from "@scow/utils";
 import { App, Button, Form, InputNumber, Popconfirm, Space, Table } from "antd";
 import Router from "next/router";
-import { join } from "path";
 import React, { useCallback, useMemo, useState } from "react";
 import { useAsync } from "react-async";
 import { useStore } from "simstate";
@@ -236,7 +236,7 @@ export const RunningJobInfoTable: React.FC<JobInfoTableProps> = ({
           fixed="right"
           render={(_, r) => (
             <Space>
-              <a onClick={() => Router.push(join("/files", r.cluster.id, r.workingDir))}>
+              <a onClick={() => Router.push(joinUrlPath("/files", r.cluster.id, r.workingDir.replace(/^\/+/, "")))}>
                 {t(p("jobInfoTable.linkToPath"))}
               </a>
               <a onClick={() => setPreviewItem(r)}>{t("button.detailButton")}</a>

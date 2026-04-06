@@ -13,7 +13,6 @@
 import { typeboxRouteSchema } from "@ddadaal/next-typed-api-routes-runtime";
 import { Static, Type } from "@sinclair/typebox";
 import dayjs from "dayjs";
-import { join } from "path";
 import { authenticate } from "src/auth/server";
 import { PlatformRole } from "src/models/User";
 import { publicConfig } from "src/utils/config";
@@ -161,7 +160,9 @@ export default /* #__PURE__*/route(GetAlarmLogsSchema, async (req, res) => {
     }],
   };
 
-  return await fetch(join(publicConfig.CLUSTER_MONITOR.grafanaUrl ?? DEFAULT_GRAFANA_URL, "/api/ds/query"), {
+  const grafanaBase = publicConfig.CLUSTER_MONITOR.grafanaUrl ?? DEFAULT_GRAFANA_URL;
+  const grafanaUrl = new URL("api/ds/query", grafanaBase.endsWith("/") ? grafanaBase : `${grafanaBase}/`).href;
+  return await fetch(grafanaUrl, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

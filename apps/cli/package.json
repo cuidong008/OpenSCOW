@@ -26,7 +26,8 @@
     "death": "1.1.0",
     "https-proxy-agent": "7.0.4",
     "node-fetch-commonjs": "3.3.2",
-    "@scow/config": "workspace:*"
+    "@scow/config": "workspace:*",
+    "@scow/utils": "workspace:*"
   },
   "devDependencies": {
     "@types/yargs": "17.0.32",

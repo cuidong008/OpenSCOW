@@ -13,8 +13,8 @@
 import "antd/dist/reset.css";
 
 import { DarkModeCookie } from "@scow/lib-web/build/layouts/darkMode";
+import { joinUrlPath } from "@scow/utils";
 import { cookies } from "next/headers";
-import { join } from "path";
 import React from "react";
 import { ClientLayout } from "src/app/clientLayout";
 import { ServerClientProvider } from "src/app/trpcClient.server";
@@ -32,8 +32,8 @@ export default function MyApp({ children }: { children: React.ReactNode }) {
     <html>
       <head>
         <meta name="format-detection" content="telephone=no" />
-        <link href={join(BASE_PATH, "manifest.json")} rel="manifest" id="manifest" />
-        <link href={join(BASE_PATH, "/api/icon?type=favicon")} rel="icon" type="image/x-icon" />
+        <link href={joinUrlPath(BASE_PATH || "/", "manifest.json")} rel="manifest" id="manifest" />
+        <link href={joinUrlPath(BASE_PATH || "/", "/api/icon?type=favicon")} rel="icon" type="image/x-icon" />
       </head>
       <ServerClientProvider>
         <ClientLayout initialDark={dark}>

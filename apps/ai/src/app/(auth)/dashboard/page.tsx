@@ -11,7 +11,7 @@
  */
 
 "use client";
-import { join } from "path";
+import { joinUrlPath } from "@scow/utils";
 import { usePublicConfig } from "src/app/(auth)/context";
 import { Head } from "src/utils/head";
 import { styled } from "styled-components";
@@ -34,7 +34,7 @@ export default function Page() {
         <Logo>
           <img
             alt="logo"
-            src={join(BASE_PATH, "/api/logo?type=logo")}
+            src={joinUrlPath(BASE_PATH || "/", "/api/logo?type=logo")}
             style={{
               objectFit: "contain",
               maxWidth: "50%",

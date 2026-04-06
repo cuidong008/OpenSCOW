@@ -14,8 +14,8 @@
 
 import "swagger-ui-react/swagger-ui.css";
 
+import { joinUrlPath } from "@scow/utils";
 import dynamic from "next/dynamic";
-import { join } from "path";
 import { Head } from "src/utils/head";
 
 import { usePublicConfig } from "../context";
@@ -27,7 +27,7 @@ export default function Page() {
   return (
     <>
       <Head title="SCOW AI API"></Head>
-      <SwaggerUI url={join(BASE_PATH, "/api/openapi.json")} />
+      <SwaggerUI url={joinUrlPath(BASE_PATH || "/", "/api/openapi.json")} />
     </>
   );
 }

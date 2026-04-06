@@ -10,17 +10,17 @@
  * See the Mulan PSL v2 for more details.
  */
 
-import { join } from "path";
+import { joinUrlPath } from "@scow/utils";
 import { publicConfig } from "src/utils/config";
 
 export const urlToDownload = (cluster: string, path: string, download: boolean): string => {
 
-  return join(publicConfig.BASE_PATH, "/api/file/download")
+  return joinUrlPath(publicConfig.BASE_PATH || "/", "/api/file/download")
   + `?path=${encodeURIComponent(path)}&cluster=${cluster}&download=${download}`;
 };
 export const urlToUpload = (cluster: string, path: string): string => {
 
-  return join(publicConfig.BASE_PATH, "/api/file/upload")
+  return joinUrlPath(publicConfig.BASE_PATH || "/", "/api/file/upload")
   + `?path=${encodeURIComponent(path)}&cluster=${cluster}`;
 };
 

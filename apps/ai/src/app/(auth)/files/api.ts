@@ -10,7 +10,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
-import { join } from "path";
+import { joinUrlPath } from "@scow/utils";
 import { UploadQuery } from "src/app/(auth)/files/upload/route";
 
 export const urlToDownload = (
@@ -23,7 +23,7 @@ export const urlToDownload = (
     download: String(download) as "true" | "false",
   });
 
-  return join(basePath, "/api/file/download") + "?" + searchParams.toString();
+  return joinUrlPath(basePath || "/", "/api/file/download") + "?" + searchParams.toString();
 };
 export const urlToUpload = (
   clusterId: string, path: string, basePath: string,
@@ -34,6 +34,6 @@ export const urlToUpload = (
     clusterId,
   } satisfies UploadQuery);
 
-  return join(basePath, "/files/upload") + "?" + searchParams.toString();
+  return joinUrlPath(basePath || "/", "/files/upload") + "?" + searchParams.toString();
 };
 

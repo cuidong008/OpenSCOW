@@ -11,10 +11,10 @@
  */
 
 import { queryToString } from "@scow/lib-web/build/utils/querystring";
+import { joinUrlPath } from "@scow/utils";
 import { Spin } from "antd";
 import { NextPage } from "next";
 import { useRouter } from "next/router";
-import { join } from "path";
 import { useCallback } from "react";
 import { useAsync } from "react-async";
 import { useStore } from "simstate";
@@ -48,7 +48,7 @@ export const HomeDirFileManagerPage: NextPage = requireAuth(() => true)(() => {
     return <ServerErrorPage />;
   }
 
-  return <Redirect url={join("/files", cluster, data?.path ?? "")} />;
+  return <Redirect url={joinUrlPath("/files", cluster, (data?.path ?? "").replace(/^\/+/, ""))} />;
 });
 
 export default HomeDirFileManagerPage;

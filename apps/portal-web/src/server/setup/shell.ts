@@ -16,8 +16,8 @@ import { OperationType } from "@scow/lib-operation-log";
 import { queryToIntOrDefault } from "@scow/lib-web/build/utils/querystring";
 import { ShellResponse, ShellServiceClient } from "@scow/protos/build/portal/shell";
 import { normalizePathnameWithQuery } from "@scow/utils";
+import { joinUrlPath } from "@scow/utils";
 import { NextApiRequest } from "next";
-import { join } from "path";
 import { checkCookie } from "src/auth/server";
 import { OperationResult } from "src/models/operationLog";
 import { callLog } from "src/server/operationLog";
@@ -206,7 +206,7 @@ export const setupShellServer = (req: NextApiRequest) => {
 
   (req.socket as any).server.on("upgrade", (request, socket, head) => {
     const url = normalizePathnameWithQuery(request.url);
-    if (!url.startsWith(join(publicConfig.BASE_PATH, "/api/shell"))) {
+    if (!url.startsWith(joinUrlPath(publicConfig.BASE_PATH || "/", "/api/shell"))) {
       return;
     }
 

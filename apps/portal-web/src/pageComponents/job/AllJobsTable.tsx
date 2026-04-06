@@ -15,10 +15,10 @@ import { formatDateTime, getDefaultPresets } from "@scow/lib-web/build/utils/dat
 import { compareNumber, compareTimeAsSeconds } from "@scow/lib-web/build/utils/math";
 import { DEFAULT_PAGE_SIZE } from "@scow/lib-web/build/utils/pagination";
 import { JobInfo } from "@scow/protos/build/portal/job";
+import { joinUrlPath } from "@scow/utils";
 import { Button, DatePicker, Form, InputNumber, Popover, Space, Table } from "antd";
 import dayjs from "dayjs";
 import Router from "next/router";
-import { join } from "path";
 import React, { useCallback, useMemo, useState } from "react";
 import { useAsync } from "react-async";
 import { useStore } from "simstate";
@@ -254,7 +254,7 @@ export const JobInfoTable: React.FC<JobInfoTableProps> = ({
         fixed="right"
         render={(_, r) => (
           <Space>
-            <a onClick={() => Router.push(join("/files", cluster.id, r.workingDirectory))}>
+            <a onClick={() => Router.push(joinUrlPath("/files", cluster.id, r.workingDirectory.replace(/^\/+/, "")))}>
               {t(p("linkToPath"))}
             </a>
           </Space>
