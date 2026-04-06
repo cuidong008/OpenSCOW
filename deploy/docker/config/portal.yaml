@@ -2,7 +2,7 @@
 jobManagement: true
 
 # 是否启用交互式任务功能
-apps: true
+apps: false
 
 loginDesktop:
   # 是否启用桌面功能。未在登录节点安装 TurboVNC、或未打通 MIS→login 的 root SSH 时，
