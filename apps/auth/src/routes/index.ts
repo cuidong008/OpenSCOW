@@ -39,5 +39,4 @@ export const routes = [
   changeEmailRoute,
   changeNameRoute,
   checkPasswordRoute,
-  trustedSessionTokenRoute,
 ];
