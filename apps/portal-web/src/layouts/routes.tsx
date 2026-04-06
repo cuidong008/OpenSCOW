@@ -19,7 +19,7 @@ import {
 import { NavItemProps } from "@scow/lib-web/build/layouts/base/types";
 import { NavIcon } from "@scow/lib-web/build/layouts/icon";
 import { getI18nConfigCurrentText } from "@scow/lib-web/build/utils/systemLanguage";
-import { join } from "path";
+import { joinUrlPath } from "@scow/utils";
 import { useI18n, useI18nTranslateToString } from "src/i18n";
 import { AllJobsIcon, ApplicationIcon
   , AppSessionsIcon, ClusterFileManagerIcon
@@ -86,10 +86,10 @@ export const userRoutes: (
         text: "Shell",
         path: "/shell",
         clickToPath:
-        join(publicConfig.BASE_PATH,
+        joinUrlPath(publicConfig.BASE_PATH || "/",
           "shell",
           defaultCluster?.id ?? currentClusters[0].id,
-          loginNodes[defaultCluster?.id ?? currentClusters[0].id]?.[0]?.address),
+          loginNodes[defaultCluster?.id ?? currentClusters[0].id]?.[0]?.address ?? ""),
         openInNewPage: true,
         clickable: true,
         children: currentClusters.map(({ name, id }) => ({
@@ -97,7 +97,7 @@ export const userRoutes: (
           Icon: ShellClusterIcon,
           text: getI18nConfigCurrentText(name, languageId),
           path: `/shell/${id}`,
-          clickToPath: join(publicConfig.BASE_PATH, "shell", id, loginNodes[id]?.[0]?.address),
+          clickToPath: joinUrlPath(publicConfig.BASE_PATH || "/", "shell", id, loginNodes[id]?.[0]?.address ?? ""),
           handleClick: () => { setDefaultCluster({ name, id }); },
           children: loginNodes[id]?.map((loginNode) => ({
             openInNewPage: true,
@@ -186,7 +186,7 @@ export const userRoutes: (
         return {
           Icon: !link.iconPath ? LinkOutlined : (
             <NavIcon
-              src={join(publicConfig.PUBLIC_PATH, link.iconPath)}
+              src={joinUrlPath(publicConfig.PUBLIC_PATH || "/", link.iconPath)}
             />
           ),
           text: link.text,
@@ -197,7 +197,7 @@ export const userRoutes: (
           children: link.children?.length ? link.children?.map((childLink) => ({
             Icon: !childLink.iconPath ? LinkOutlined : (
               <NavIcon
-                src={join(publicConfig.PUBLIC_PATH, childLink.iconPath)}
+                src={joinUrlPath(publicConfig.PUBLIC_PATH || "/", childLink.iconPath)}
               />
             ),
             text: childLink.text,

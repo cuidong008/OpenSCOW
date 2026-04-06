@@ -11,9 +11,9 @@
  */
 
 import { debounce } from "@scow/lib-web/build/utils/debounce";
+import { joinUrlPath } from "@scow/utils";
 import { FitAddon } from "@xterm/addon-fit";
 import { Terminal } from "@xterm/xterm";
-import { join } from "path";
 import { useEffect, useRef } from "react";
 import { usePublicConfig } from "src/app/(auth)/context";
 import { ShellInputData, ShellOutputData } from "src/server/setup/jobShell";
@@ -62,7 +62,7 @@ export const JobShell: React.FC<Props> = ({ user, cluster, jobId }) => {
 
       const socket = new WebSocket(
         (location.protocol === "http:" ? "ws" : "wss") + "://" + location.host +
-        join(BASE_PATH, "/api/jobShell") + "?" + new URLSearchParams(payload).toString(),
+        joinUrlPath(BASE_PATH || "/", "/api/jobShell") + "?" + new URLSearchParams(payload).toString(),
       );
 
       socket.onmessage = (e) => {

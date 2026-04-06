@@ -10,13 +10,13 @@
  * See the Mulan PSL v2 for more details.
  */
 
+import { joinUrlPath } from "@scow/utils";
 import * as crypto from "crypto";
 import { FastifyBaseLogger, FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import ldapjs from "ldapjs";
 import { Liquid } from "liquidjs";
 import * as nodemailer from "nodemailer";
 import { TransportOptions } from "nodemailer";
-import { join } from "path";
 import * as speakeasy from "speakeasy";
 import { renderBindOtpHtml } from "src/auth/bindOtpHtml";
 import { extractAttr, searchOne, takeOne } from "src/auth/ldap/helpers";
@@ -174,7 +174,7 @@ export async function sendEmailAuthLink(
   const href = String(Object.assign(new URL("http://example.com"), {
     protocol: scowHostUrl.protocol,
     host: scowHostUrl.host,
-    pathname: join(config.BASE_PATH, config.AUTH_BASE_PATH, "/public/otp/email/validation"),
+    pathname: joinUrlPath(config.BASE_PATH, config.AUTH_BASE_PATH, "public/otp/email/validation"),
     search: `token=${otpSessionToken}&callbackUrl=${callbackUrl}`,
   }));
   const mailOptions = {

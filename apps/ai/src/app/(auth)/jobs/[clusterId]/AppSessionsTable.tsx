@@ -13,10 +13,10 @@
 "use client";
 
 import { ExclamationCircleOutlined } from "@ant-design/icons";
+import { joinUrlPath } from "@scow/utils";
 import { App, Button, Checkbox, Form, Input, Popconfirm, Space, Table, TableColumnsType, Tooltip } from "antd";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { join } from "path";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { FilterFormContainer } from "src/components/FilterFormContainer";
 import { ModalButton } from "src/components/ModalLink";
@@ -232,7 +232,7 @@ export const AppSessionsTable: React.FC<Props> = ({ cluster, status }) => {
             }}
           >再次提交</Button>
           <a onClick={() => {
-            router.push(join("/files", cluster.id, record.dataPath));
+            router.push(joinUrlPath("/files", cluster.id, record.dataPath.replace(/^\/+/, "")));
           }}
           >
             进入目录

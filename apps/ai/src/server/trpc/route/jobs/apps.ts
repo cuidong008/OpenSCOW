@@ -26,6 +26,7 @@ import {
   sftpWriteFile,
 } from "@scow/lib-ssh";
 import { getI18nConfigCurrentText } from "@scow/lib-web/build/utils/systemLanguage";
+import { joinUrlPath } from "@scow/utils";
 import { TRPCError } from "@trpc/server";
 import fs from "fs";
 import { join } from "path";
@@ -331,7 +332,7 @@ export const createAppSession = procedure
     const apps = getClusterAppConfigs(clusterId);
     const app = checkAppExist(apps, appId);
 
-    const proxyBasePath = join(BASE_PATH, "/api/proxy", clusterId);
+    const proxyBasePath = joinUrlPath(BASE_PATH || "/", "/api/proxy", clusterId);
 
     const attributesConfig = app.attributes;
     attributesConfig?.forEach((attribute) => {
@@ -462,7 +463,7 @@ export const createAppSession = procedure
       let entryScript = "";
       if (app.type === "web") {
         const runtimeVariables = getEnvVariables({
-          PROXY_BASE_PATH: join(proxyBasePath, app.web!.proxyType),
+          PROXY_BASE_PATH: joinUrlPath(proxyBasePath, app.web!.proxyType),
           SERVER_SESSION_INFO,
         });
         const beforeScript = runtimeVariables + customAttributesExport + app.web!.beforeScript + sessionInfo;

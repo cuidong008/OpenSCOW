@@ -120,7 +120,6 @@ export class JobInfo {
 
 
   constructor(
-    // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
     job: { cluster: string } & ClusterJobInfo,
     tenant: string | undefined,
     jobPriceInfo: JobPriceInfo,

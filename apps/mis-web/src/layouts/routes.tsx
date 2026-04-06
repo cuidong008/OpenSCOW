@@ -22,7 +22,7 @@ import {
 import { NavItemProps } from "@scow/lib-web/build/layouts/base/types";
 import { NavIcon } from "@scow/lib-web/build/layouts/icon";
 import { AccountAffiliation } from "@scow/protos/build/server/user";
-import { join } from "path";
+import { joinUrlPath } from "@scow/utils";
 import { Lang } from "react-typed-i18n";
 import { prefix } from "src/i18n";
 import en from "src/i18n/en";
@@ -451,7 +451,7 @@ export const getAvailableRoutes = (user: User | undefined, t: TransType): NavIte
           .map((childLink) => ({
             Icon: !childLink.iconPath ? LinkOutlined : (
               <NavIcon
-                src={join(publicConfig.PUBLIC_PATH, childLink.iconPath)}
+                src={joinUrlPath(publicConfig.PUBLIC_PATH || "/", childLink.iconPath)}
               />
             ),
             text: childLink.text,
@@ -466,7 +466,7 @@ export const getAvailableRoutes = (user: User | undefined, t: TransType): NavIte
         return {
           Icon: !link.iconPath ? LinkOutlined : (
             <NavIcon
-              src={join(publicConfig.PUBLIC_PATH, link.iconPath)}
+              src={joinUrlPath(publicConfig.PUBLIC_PATH || "/", link.iconPath)}
             />
           ),
           text: link.text,

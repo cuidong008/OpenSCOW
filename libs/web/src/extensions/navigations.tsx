@@ -11,7 +11,7 @@
  */
 
 import { LinkOutlined } from "@ant-design/icons";
-import { join } from "path";
+import { joinUrlPath } from "@scow/utils";
 import { ExtensionRouteQuery,isUrl } from "src/extensions/common";
 import { defineExtensionRoute } from "src/extensions/routes";
 import { NavItemProps } from "src/layouts/base/types";
@@ -100,7 +100,7 @@ export const toNavItemProps = (
       parts.push(encodeURIComponent(extensionName));
     }
     parts.push(returnedPath);
-    return join(...parts);
+    return joinUrlPath(parts[0], ...parts.slice(1));
   };
 
   originalItems.forEach(convertToMap);

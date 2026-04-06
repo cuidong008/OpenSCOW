@@ -10,7 +10,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
-import { join } from "path";
+import { joinServiceBaseUrl } from "@scow/utils";
 import { applicationJsonHeaders, logHttpErrorAndThrow } from "src/utils";
 import { Logger } from "ts-log";
 
@@ -33,7 +33,7 @@ export async function getUser(
 ): Promise<AuthUserInfo | undefined> {
 
   const query = new URLSearchParams([["identityId", params.identityId]]);
-  const url = join(authUrl, "/user") + "?" + query.toString();
+  const url = `${joinServiceBaseUrl(authUrl, "/user")}?${query.toString()}`;
   const resp = await fetch(url, {
     headers: applicationJsonHeaders,
   });

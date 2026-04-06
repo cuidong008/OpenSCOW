@@ -10,10 +10,9 @@
  * See the Mulan PSL v2 for more details.
  */
 
-import { joinWithUrl } from "@scow/utils";
+import { joinUrlPath } from "@scow/utils";
 import { Typography } from "antd";
 import { NextPage } from "next";
-import path from "path";
 import { requireAuth } from "src/auth/requireAuth";
 import { prefix, useI18nTranslateToString } from "src/i18n";
 import { PlatformRole } from "src/models/User";
@@ -62,10 +61,16 @@ export const ResourceStatusPage: NextPage = requireAuth(
 
   const t = useI18nTranslateToString();
 
-  const normalGrafanaUrl = joinWithUrl(publicConfig.CLUSTER_MONITOR.grafanaUrl ?? DEFAULT_GRAFANA_URL,
-    `/d/${publicConfig.CLUSTER_MONITOR.resourceStatus.dashboardUid}`);
-  const proxyGrafanaUrl = path.join(publicConfig.BASE_PATH, "/api/admin/monitor/getResourceStatus",
-    `/d/${publicConfig.CLUSTER_MONITOR.resourceStatus.dashboardUid}`);
+  const grafanaBase = publicConfig.CLUSTER_MONITOR.grafanaUrl ?? DEFAULT_GRAFANA_URL;
+  const normalGrafanaUrl = new URL(
+    `/d/${publicConfig.CLUSTER_MONITOR.resourceStatus.dashboardUid}`,
+    grafanaBase.endsWith("/") ? grafanaBase : `${grafanaBase}/`,
+  ).href;
+  const proxyGrafanaUrl = joinUrlPath(
+    publicConfig.BASE_PATH || "/",
+    "api/admin/monitor/getResourceStatus",
+    `d/${publicConfig.CLUSTER_MONITOR.resourceStatus.dashboardUid}`,
+  );
 
   return (
     <>

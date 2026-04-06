@@ -11,10 +11,9 @@
  */
 
 import { ClusterConfigSchema, getLoginNode } from "@scow/config/build/cluster";
-import { normalizePathnameWithQuery } from "@scow/utils";
+import { joinUrlPath, normalizePathnameWithQuery } from "@scow/utils";
 import httpProxy from "http-proxy";
 import { NextApiRequest } from "next";
-import { join } from "path";
 import { checkCookie } from "src/auth/server";
 import { publicConfig } from "src/utils/config";
 
@@ -85,7 +84,7 @@ export const setupWssProxy = (req: NextApiRequest) => {
 
     const url = normalizePathnameWithQuery(req.url);
 
-    if (!url.startsWith(join(publicConfig.BASE_PATH, "/api/proxy"))) {
+    if (!url.startsWith(joinUrlPath(publicConfig.BASE_PATH || "/", "/api/proxy"))) {
       return;
     }
 

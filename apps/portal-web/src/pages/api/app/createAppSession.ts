@@ -16,8 +16,8 @@ import { ServiceError } from "@grpc/grpc-js";
 import { OperationType } from "@scow/lib-operation-log";
 import { AppServiceClient } from "@scow/protos/build/portal/app";
 import { parseErrorDetails } from "@scow/rich-error-model";
+import { joinUrlPath } from "@scow/utils";
 import { Type } from "@sinclair/typebox";
-import { join } from "path";
 import { authenticate } from "src/auth/server";
 import { OperationResult } from "src/models/operationLog";
 import { callLog } from "src/server/operationLog";
@@ -89,7 +89,7 @@ export default /* #__PURE__*/route(CreateAppSessionSchema, async (req, res) => {
 
   const client = getClient(AppServiceClient);
 
-  const proxyBasePath = join(publicConfig.BASE_PATH, "/api/proxy", cluster);
+  const proxyBasePath = joinUrlPath(publicConfig.BASE_PATH || "/", "/api/proxy", cluster);
 
   const logInfo = {
     operatorUserId: info.identityId,

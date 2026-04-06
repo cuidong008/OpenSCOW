@@ -12,8 +12,8 @@
 
 import { parsePlaceholder } from "@scow/lib-config/build/parse";
 import type { AppSession } from "@scow/protos/build/portal/app";
+import { joinUrlPath } from "@scow/utils";
 import { App } from "antd";
-import { join } from "path";
 import { useCallback } from "react";
 import { useAsync } from "react-async";
 import { api } from "src/apis";
@@ -67,7 +67,15 @@ export const ConnectTopAppLink: React.FC<Props> = ({
       const query = connect.query ? interpolateValues(connect.query) : {};
       const formData = connect.formData ? interpolateValues(connect.formData) : undefined;
 
-      const pathname = join(publicConfig.BASE_PATH, "/api/proxy", cluster.id, proxyType, host, String(port), path);
+      const pathname = joinUrlPath(
+        publicConfig.BASE_PATH || "/",
+        "/api/proxy",
+        cluster.id,
+        proxyType,
+        host,
+        String(port),
+        path.replace(/^\/+/, ""),
+      );
 
       const url = pathname + "?" + new URLSearchParams(query).toString();
 

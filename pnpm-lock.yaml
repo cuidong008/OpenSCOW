@@ -535,6 +535,9 @@ importers:
       '@scow/lib-config':
         specifier: workspace:*
         version: link:../../libs/libconfig
+      '@scow/utils':
+        specifier: workspace:*
+        version: link:../../libs/utils
       '@sinclair/typebox':
         specifier: 0.32.34
         version: 0.32.34
@@ -1290,6 +1293,10 @@ importers:
         version: 5.0.0
 
   libs/auth:
+    dependencies:
+      '@scow/utils':
+        specifier: workspace:*
+        version: link:../utils
     devDependencies:
       ts-log:
         specifier: 2.2.5

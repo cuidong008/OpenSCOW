@@ -33,6 +33,24 @@ export function joinUrlPath(base: string, ...parts: string[]): string {
 }
 
 /**
+ * Append a path segment to an internal service base URL.
+ * Use {@link joinUrlPath} semantics for the path (so a leading `/` on `pathSegment` does not drop the base path).
+ *
+ * For `http://` / `https://` bases, pathname is merged via {@link joinUrlPath}.
+ * Bare bases like `auth:5000` are **not** valid hierarchical URLs for `new URL()`;
+ * they are concatenated safely instead.
+ */
+export function joinServiceBaseUrl(baseUrl: string, pathSegment: string): string {
+  const trimmed = baseUrl.trim();
+  if (/^https?:\/\//i.test(trimmed)) {
+    const u = new URL(trimmed);
+    u.pathname = joinUrlPath(u.pathname, pathSegment);
+    return u.toString();
+  }
+  return `${trimmed.replace(/\/+$/, "")}${joinUrlPath("/", pathSegment)}`;
+}
+
+/**
  * Join paths to base url or pathname
  * @param base base url. can be a URL or a pathname
  * @param paths other paths
@@ -52,8 +70,10 @@ export function joinWithUrl(base: string, ...paths: string[]) {
   const pathname = noProtocol.slice(0, qsIndex === -1 ? undefined : qsIndex);
   const query = qsIndex === -1 ? "" : noProtocol.slice(qsIndex);
 
-  // join pathanmes
-  const joinedPathname = normalize(join(pathname, ...paths));
+  // URL pathname starting with `/` must not use path.join: path.join("/hpc", "/api") drops "/hpc".
+  const joinedPathname = pathname.startsWith("/")
+    ? normalize(joinUrlPath(pathname, ...paths))
+    : normalize(join(pathname, ...paths));
 
   return protocol + joinedPathname + query;
 }

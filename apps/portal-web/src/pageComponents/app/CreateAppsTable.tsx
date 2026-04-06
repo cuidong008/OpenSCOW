@@ -11,9 +11,9 @@
  */
 
 import { PictureOutlined } from "@ant-design/icons";
+import { joinUrlPath } from "@scow/utils";
 import { Avatar, Card, Col, Result, Row, Spin, Tooltip } from "antd";
 import Link from "next/link";
-import { join } from "path";
 import { useCallback, useState } from "react";
 import { useAsync } from "react-async";
 import { api } from "src/apis";
@@ -94,7 +94,7 @@ export const CreateAppsTable: React.FC<Props> = ({ clusterId }) => {
                               width: "150px",
                               height: "150px",
                             }}
-                            src={join(publicConfig.PUBLIC_PATH, app.logoPath)}
+                            src={joinUrlPath(publicConfig.PUBLIC_PATH || "/", app.logoPath)}
                             onError={() => handleImageError(app.id)}
                           />
                         ) : (

@@ -24,12 +24,12 @@ import { useConstant } from "@scow/lib-web/build/utils/hooks";
 import { isServer } from "@scow/lib-web/build/utils/isServer";
 import { formatActivatedClusters } from "@scow/lib-web/build/utils/misCommon/clustersActivation";
 import { getCurrentLanguageId, getI18nConfigCurrentText } from "@scow/lib-web/build/utils/systemLanguage";
+import { joinUrlPath } from "@scow/utils";
 import { App as AntdApp } from "antd";
 import type { AppContext, AppProps } from "next/app";
 import NextApp from "next/app";
 import dynamic from "next/dynamic";
 import Head from "next/head";
-import { join } from "path";
 import { useEffect, useRef } from "react";
 import { createStore, StoreProvider, useStore } from "simstate";
 import { api } from "src/apis";
@@ -181,11 +181,11 @@ function MyApp({ Component, pageProps, extra }: Props) {
     <>
       <Head>
         <meta name="format-detection" content="telephone=no" />
-        <link href={join(publicConfig.BASE_PATH, "/manifest.json")} rel="manifest" id="manifest" />
+        <link href={joinUrlPath(publicConfig.BASE_PATH || "/", "/manifest.json")} rel="manifest" id="manifest" />
         <link
           rel="icon"
           type="image/x-icon"
-          href={join(publicConfig.BASE_PATH, "/api/icon?type=favicon")}
+          href={joinUrlPath(publicConfig.BASE_PATH || "/", "/api/icon?type=favicon")}
         ></link>
         <script
           id="__CONFIG__"

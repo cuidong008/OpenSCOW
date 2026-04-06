@@ -12,7 +12,7 @@
 
 import { getConfig } from "@scow/lib-config/build/fileConfig";
 import { Static, Type } from "@sinclair/typebox";
-import { join } from "path";
+import { resolve } from "path";
 import { logger } from "src/log";
 
 export enum AuthCustomType {
@@ -194,7 +194,9 @@ export const InstallConfigSchema = Type.Object({
 export type InstallConfigSchema = Static<typeof InstallConfigSchema>;
 
 export function getInstallConfig(filePath: string) {
-  const fullPath = join(process.cwd(), filePath);
+  // 使用 resolve：相对路径相对 cwd；绝对路径保持为根下的绝对路径。
+  // path.join(cwd, "/abs") 在 Node 中会错误地拼成 cwd + "abs" 形式的路径。
+  const fullPath = resolve(filePath);
 
   logger.debug("Using install config %s", fullPath);
 

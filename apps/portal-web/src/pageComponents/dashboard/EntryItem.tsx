@@ -11,7 +11,7 @@
  */
 
 import { PictureOutlined } from "@ant-design/icons";
-import { join } from "path";
+import { joinUrlPath } from "@scow/utils";
 import React, { CSSProperties, useState } from "react";
 import { ColoredIcon, isSupportedIconName } from "src/components/Icon";
 import { publicConfig } from "src/utils/config";
@@ -67,7 +67,7 @@ export const EntryItem: React.FC<Props> = ({ style,
         {
           (logoPath && imageErrorMap[entryBaseName] !== true) ? (
             <img
-              src={join(publicConfig.PUBLIC_PATH, logoPath)}
+              src={joinUrlPath(publicConfig.PUBLIC_PATH || "/", logoPath)}
               onError={() => handleImageError(entryBaseName)}
               style={{ maxWidth:"60px", objectFit:"contain",
                 position:"relative", top:`${(entryExtraInfo?.length ?? 0 - 0) * 8}px` }}

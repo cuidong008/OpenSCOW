@@ -11,8 +11,8 @@
  */
 
 import { LinkOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
+import { joinUrlPath } from "@scow/utils";
 import { Space } from "antd";
-import { join } from "path";
 import React, { useCallback, useState } from "react";
 import { useAsync } from "react-async";
 import { ExtensionRouteQuery, isUrl } from "src/extensions/common";
@@ -236,7 +236,7 @@ const NavbarLinkFetcher = ({ extension, from, routeQuery, onDataFetched }: Fetch
           }
 
           parts.push(x.path);
-          x.path = join(...parts);
+          x.path = joinUrlPath(parts[0], ...parts.slice(1));
         }
 
         return x;

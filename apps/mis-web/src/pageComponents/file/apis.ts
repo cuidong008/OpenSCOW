@@ -10,7 +10,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
-import { join } from "path";
+import { joinUrlPath } from "@scow/utils";
 import { Encoding } from "src/models/exportFile";
 import { publicConfig } from "src/utils/config";
 
@@ -58,7 +58,7 @@ export const urlToExport = ({
   params.append("encoding", encoding);
   params.append("timeZone",timeZone ?? "UTC");
   const queryString = params.toString();
-  const fullPath = join(publicConfig.BASE_PATH, `/api/file/${exportApi}?${queryString}`);
+  const fullPath = `${joinUrlPath(publicConfig.BASE_PATH || "/", `/api/file/${exportApi}`)}?${queryString}`;
   return fullPath;
 };
 

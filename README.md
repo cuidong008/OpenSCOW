@@ -13,13 +13,16 @@
 ```bash
 docker build --network=host \
   --platform linux/amd64 \
-  --build-arg PKG_CLI_TARGETS=node18-linux-x64 \
   -f docker/Dockerfile.scow \
   -t harbor.aix.com:8443/library/openscow:1.6.9 \
   --build-arg GIT_HTTP_PROXY=http://127.0.0.1:7890 \
   --build-arg GIT_HTTPS_PROXY=http://127.0.0.1:7890 \
   --progress=plain \
   .
+
+  pnpm --filter @scow/cli build
+
+  ./cli generate -c ./install.yaml -o ./docker-compose.yml
 ```
 
 # 简介

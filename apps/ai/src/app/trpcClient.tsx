@@ -13,10 +13,10 @@
 "use client";
 
 import { joinWithUrl } from "@scow/utils";
+import { joinUrlPath } from "@scow/utils";
 import { MutationCache, QueryCache, QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { httpBatchLink, loggerLink, TRPCClientError } from "@trpc/client";
 import { message } from "antd";
-import { join } from "path";
 import { useState } from "react";
 import { AppRouter } from "src/server/trpc/router";
 import { trpc } from "src/utils/trpc";
@@ -33,7 +33,7 @@ export function ClientProvider(props: { baseUrl: string; basePath: string; child
         retry(failureCount, error) {
           const { data } = error as TRPCClientError<AppRouter>;
           if (data?.code && data?.code === "UNAUTHORIZED") {
-            window.location.href = join(props.basePath, "/api/auth");
+            window.location.href = joinUrlPath(props.basePath || "/", "/api/auth");
             return false;
           }
 
@@ -49,7 +49,7 @@ export function ClientProvider(props: { baseUrl: string; basePath: string; child
       onError: (error, query) => {
         const { data, message: msg } = error as TRPCClientError<AppRouter>;
         if (data?.code && data?.code === "UNAUTHORIZED") {
-          window.location.href = join(props.basePath, "/api/auth");
+          window.location.href = joinUrlPath(props.basePath || "/", "/api/auth");
         } else if (msg) {
           message.error(msg);
         } else if (data?.code && query?.meta?.[data?.code]) {
@@ -65,7 +65,7 @@ export function ClientProvider(props: { baseUrl: string; basePath: string; child
         const { data, message: errMessage } = error as TRPCClientError<AppRouter>;
         const { onError } = mutation.options;
         if (data?.code && data?.code === "UNAUTHORIZED") {
-          window.location.href = join(props.basePath, "/api/auth");
+          window.location.href = joinUrlPath(props.basePath || "/", "/api/auth");
         } else if (data?.path?.startsWith("file") && data?.code === "PRECONDITION_FAILED"
          && errMessage.startsWith("SSH_ERROR:")) {
           message.error("无法以用户身份连接到登录节点。请确认您的家目录的权限为700、750或者755，或您是否有权限在此执行操作");
@@ -87,7 +87,7 @@ export function ClientProvider(props: { baseUrl: string; basePath: string; child
         }),
         httpBatchLink({
           url: typeof window === "undefined" ? joinWithUrl(props.baseUrl, props.basePath, "/api/trpc")
-            : join(props.basePath, "/api/trpc"),
+            : joinUrlPath(props.basePath || "/", "/api/trpc"),
         }),
       ],
       transformer: superjson,

@@ -10,6 +10,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
+import { joinUrlPath } from "@scow/utils";
 import { chmodSync, mkdirSync } from "fs";
 import path from "path";
 import { LoggingOption, ServiceSpec } from "src/compose/spec";
@@ -24,8 +25,15 @@ function checkPathFormat(configKey: string, value: string) {
   }
 }
 
+/**
+ * Compose URL paths (basePath + misPath, etc.).
+ * Do not use path.join — it drops the base when a segment starts with `/`.
+ */
 function join(...segments: string[]) {
-  const r = path.normalize(path.join(...segments));
+  if (segments.length === 0) { return "/"; }
+  const [first, ...rest] = segments;
+  let r = joinUrlPath(first || "/", ...rest);
+  r = path.normalize(r);
   if (r !== "/" && r.endsWith("/")) {
     return r.substring(0, r.length - 1);
   }

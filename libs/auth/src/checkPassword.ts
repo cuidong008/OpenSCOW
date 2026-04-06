@@ -10,7 +10,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
-import { join } from "path";
+import { joinServiceBaseUrl } from "@scow/utils";
 import { applicationJsonHeaders, logHttpErrorAndThrow } from "src/utils";
 import { Logger } from "ts-log";
 
@@ -27,7 +27,7 @@ export async function checkPassword(
 ): Promise<{ success: boolean } | undefined> {
 
   const query = new URLSearchParams([["identityId", params.identityId], ["password", params.password]]);
-  const url = join(authUrl, "/checkPassword") + "?" + query.toString();
+  const url = `${joinServiceBaseUrl(authUrl, "/checkPassword")}?${query.toString()}`;
 
   const resp = await fetch(url, {
     method: "GET",

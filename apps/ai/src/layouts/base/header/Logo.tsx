@@ -12,8 +12,8 @@
 
 "use client";
 
+import { joinUrlPath } from "@scow/utils";
 import Link from "next/link";
-import { join } from "path";
 import { useDarkMode } from "src/layouts/darkMode";
 import { trpc } from "src/utils/trpc";
 import { styled } from "styled-components";
@@ -44,7 +44,7 @@ export const Logo = () => {
       <Link href="/">
         {
           data ? (
-            <LogoImage src={join(data.BASE_PATH, "/api/logo?" + query.toString())} alt="logo" />
+            <LogoImage src={joinUrlPath(data.BASE_PATH || "/", "/api/logo?" + query.toString())} alt="logo" />
           ) : undefined
         }
       </Link>
