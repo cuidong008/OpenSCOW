@@ -2,13 +2,13 @@
 # 依赖镜像默认从 Docker Hub / ghcr 拉取；内网无法访问时需先同步到 Harbor（见 README「依赖镜像」）。
 
 port: 8001
-basePath: /
+basePath: /hpc
 
-#image: harbor.aix.com:8443/library/openscow
-#imageTag: "1.6.4"
+image: harbor.aix.com:8443/library/openscow
+imageTag: "1.6.11"
 
-image: openscow
-imageTag: "local"
+  #image: openscow
+  #imageTag: "local"
 
 portal:
   # 默认 ghcr.io；无 ghcr 时请拉到 Harbor 后改此路径
@@ -39,7 +39,10 @@ gateway:
 #   映射到宿主机：http://<宿主机IP>:18001/v1/users（见 portMappings.userSync）
 # user-sync 改密接口需连 Auth：compose 会自动注入 AUTH_INTERNAL_URL（与 mis-web 一致，如 http://auth:5000）。
 # 启用 userSync 时，compose 会将 userSyncApiToken 同时注入为 Auth 的 TRUSTED_SESSION_ISSUE_TOKEN，
-# 用于 user-sync POST /v1/sso/session-token → Auth 代签发浏览器会话（aix 换票进 MIS）；勿对公网暴露 user-sync 端口。
+# 用于 user-sync POST /v1/sso/session-token → Auth 代签发浏览器会话（aix 换票进门户）；勿对公网暴露 user-sync 端口。
+# 注意：仅「内置认证镜像」（未配置 auth.custom）时 CLI 会自动注入。若使用 auth.custom（自定义 Auth 镜像），
+# 须在 auth.custom.environment 中手动增加 TRUSTED_SESSION_ISSUE_TOKEN，且与下方 userSyncApiToken 同值。
+# 修改后务必在 deploy/docker 下执行：./cli compose up -d（或 down 再 up），使 auth 容器带上新环境变量。
 userSync:
     userSyncApiToken: "aix-e-me-to-slurm-strong-big-secret"
 #   # 若 deploy/docker/config/mis.yaml 等中启用了 scowApi 并填写了 apiToken，此处须与之一致：

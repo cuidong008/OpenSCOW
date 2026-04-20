@@ -3,3 +3,6 @@ slurm.conf
 munge.key
 jwt.key
 slurm.key
+
+# 含真实 DB 密码等，由 secret-adapter-env.example.yaml 复制后本地填写
+secret-adapter-env.yaml

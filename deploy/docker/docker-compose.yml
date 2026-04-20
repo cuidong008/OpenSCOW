@@ -1,0 +1,191 @@
+version: '3'
+services:
+  gateway:
+    restart: unless-stopped
+    environment:
+      - SCOW_LAUNCH_APP=gateway
+      - BASE_PATH=/hpc
+      - PORTAL_PATH=/
+      - MIS_PATH=/mis
+      - AI_PATH=/ai
+      - CLIENT_MAX_BODY_SIZE=1G
+      - PROXY_READ_TIMEOUT=36000s
+      - PUBLIC_PATH=/__public__/
+      - PUBLIC_DIR=/app/apps/gateway/public/
+      - EXTRA=
+      - ALLOWED_SERVER_NAME=_
+      - DEFAULT_SERVER_BLOCK=
+    ports:
+      - '8001:80'
+    image: harbor.aix.com:8443/library/openscow:1.6.11
+    volumes:
+      - /etc/hosts:/etc/hosts
+      - ./public:/app/apps/gateway/public/
+    depends_on: []
+  redis:
+    restart: unless-stopped
+    environment: []
+    ports: []
+    image: harbor.aix.com:8443/library/redis:alpine
+    volumes: []
+    depends_on: []
+  auth:
+    restart: unless-stopped
+    environment:
+      - SCOW_LAUNCH_APP=auth
+      - BASE_PATH=/hpc
+      - PORTAL_BASE_PATH=/hpc
+      - TRUSTED_SESSION_ISSUE_TOKEN=aix-e-me-to-slurm-strong-big-secret
+      - LOG_LEVEL=info
+      - LOG_PRETTY=false
+    ports: []
+    image: harbor.aix.com:8443/library/openscow:1.6.11
+    volumes:
+      - /etc/hosts:/etc/hosts
+      - ./config:/etc/scow
+      - ~/.ssh:/root/.ssh
+    depends_on: []
+  portal-server:
+    restart: unless-stopped
+    environment:
+      - SCOW_LAUNCH_APP=portal-server
+      - PORTAL_BASE_PATH=/hpc
+      - SCOWD_SSL_ENABLED=false
+      - SCOWD_SSL_CA_CERT_PATH=
+      - SCOWD_SSL_SCOW_CERT_PATH=
+      - SCOWD_SSL_SCOW_PRIVATE_KEY_PATH=
+      - MIS_DEPLOYED=true
+      - MIS_SERVER_URL=mis-server:5000
+      - LOG_LEVEL=info
+      - LOG_PRETTY=false
+    ports: []
+    image: harbor.aix.com:8443/library/openscow:1.6.11
+    volumes:
+      - /etc/hosts:/etc/hosts
+      - ./config:/etc/scow
+      - ~/.ssh:/root/.ssh
+      - portal_data:/var/lib/scow/portal
+    depends_on:
+      - mis-server
+  portal-web:
+    restart: unless-stopped
+    environment:
+      - SCOW_LAUNCH_APP=portal-web
+      - BASE_PATH=/hpc
+      - MIS_URL=/hpc/mis
+      - MIS_DEPLOYED=true
+      - MIS_SERVER_URL=mis-server:5000
+      - AI_URL=/hpc/ai
+      - AI_DEPLOYED=false
+      - AUTH_EXTERNAL_URL=/hpc/auth
+      - AUTH_INTERNAL_URL=http://auth:5000
+      - NOVNC_CLIENT_URL=/hpc/vnc
+      - CLIENT_MAX_BODY_SIZE=1G
+      - PUBLIC_PATH=/hpc/__public__
+      - AUDIT_DEPLOYED=true
+      - PROTOCOL=http
+    ports: []
+    image: harbor.aix.com:8443/library/openscow:1.6.11
+    volumes:
+      - /etc/hosts:/etc/hosts
+      - ./config:/etc/scow
+    depends_on:
+      - mis-server
+  novnc:
+    restart: unless-stopped
+    environment: []
+    ports: []
+    image: harbor.aix.com:8443/library/novnc-client-docker:master
+    volumes: []
+    depends_on: []
+  mis-server:
+    restart: unless-stopped
+    environment:
+      - SCOW_LAUNCH_APP=mis-server
+      - DB_PASSWORD=must!chang3this
+      - AUTH_URL=
+      - LOG_LEVEL=info
+      - LOG_PRETTY=false
+    ports: []
+    image: harbor.aix.com:8443/library/openscow:1.6.11
+    volumes:
+      - /etc/hosts:/etc/hosts
+      - ./config:/etc/scow
+      - ~/.ssh:/root/.ssh
+    depends_on:
+      - db
+  mis-web:
+    restart: unless-stopped
+    environment:
+      - SCOW_LAUNCH_APP=mis-web
+      - BASE_PATH=/hpc/mis
+      - PORTAL_URL=/hpc
+      - PORTAL_DEPLOYED=true
+      - AI_URL=/hpc/ai
+      - AI_DEPLOYED=false
+      - AUTH_EXTERNAL_URL=/hpc/auth
+      - AUTH_INTERNAL_URL=http://auth:5000
+      - PUBLIC_PATH=/hpc/__public__
+      - AUDIT_DEPLOYED=true
+      - PROTOCOL=http
+    ports: []
+    image: harbor.aix.com:8443/library/openscow:1.6.11
+    volumes:
+      - /etc/hosts:/etc/hosts
+      - ./config:/etc/scow
+    depends_on: []
+  db:
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=must!chang3this
+    ports: []
+    image: harbor.aix.com:8443/library/mysql:8
+    volumes:
+      - db_data:/var/lib/mysql
+    depends_on: []
+  user-sync:
+    restart: unless-stopped
+    environment:
+      - SCOW_LAUNCH_APP=user-sync
+      - HOST=0.0.0.0
+      - PORT=8080
+      - MIS_SERVER_URL=mis-server:5000
+      - AUTH_INTERNAL_URL=http://auth:5000
+      - USER_SYNC_API_TOKEN=aix-e-me-to-slurm-strong-big-secret
+      - LOG_LEVEL=info
+      - LOG_PRETTY=false
+    ports:
+      - '18001:8080'
+    image: harbor.aix.com:8443/library/openscow:1.6.11
+    volumes:
+      - /etc/hosts:/etc/hosts
+      - ./config:/etc/scow
+      - ~/.ssh:/root/.ssh
+    depends_on:
+      - mis-server
+  audit-server:
+    restart: unless-stopped
+    environment:
+      - SCOW_LAUNCH_APP=audit-server
+      - DB_PASSWORD=must!chang3this
+      - LOG_LEVEL=info
+      - LOG_PRETTY=false
+    ports: []
+    image: harbor.aix.com:8443/library/openscow:1.6.11
+    volumes:
+      - /etc/hosts:/etc/hosts
+      - ./config:/etc/scow
+    depends_on: []
+  audit-db:
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=must!chang3this
+    ports: []
+    image: harbor.aix.com:8443/library/mysql:8
+    volumes:
+      - audit_db_data:/var/lib/mysql
+    depends_on: []
+volumes:
+  portal_data: {}
+  db_data: {}
+  audit_db_data: {}

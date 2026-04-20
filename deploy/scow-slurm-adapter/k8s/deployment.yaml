@@ -3,10 +3,15 @@
 # 适用于 ldap_tls_reqcert = never（不校验服务端证书，无需 ldap_tls_cacert / CA Secret）。
 # imagePullPolicy: Never：节点上必须已有该镜像（本机构建或 ctr import）。
 # 若改为 demand 并配置 ldap_tls_cacert，请恢复 ldap-ca 卷与 Secret（见 README）。
+#
+# 使用 harbor .../scow-slurm-adapter-login 时：entrypoint 会向 /app/config/config.yaml 写入配置（DB_PASSWORD、MYSQL_* 等），
+# 切勿将 ConfigMap 挂到 /app/config（只读，会报 Read-only file system）。若用 scow-slurm-adapter-sssd:local + 静态 config，再挂载 adapter-config。
+# DB_PASSWORD / MYSQL_*：见 secret-adapter-env.example.yaml，复制为 secret-adapter-env.yaml 后 apply，由下方 envFrom 注入（勿每次 kubectl set env）。
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: scow-slurm-adapter
+  namespace: slurm
   labels:
     app: scow-slurm-adapter
 spec:
@@ -33,20 +38,25 @@ spec:
         runAsGroup: 0
       containers:
         - name: adapter
-          image: scow-slurm-adapter-sssd:local
-          imagePullPolicy: Never
+          #image: scow-slurm-adapter-sssd:local
+          image: harbor.aix.com:8443/library/scow-slurm-adapter-login:1.6.2 
+          #imagePullPolicy: Never
+          imagePullPolicy: IfNotPresent
           workingDir: /app
           env:
             - name: SSSD_SMOKE_USER
               value: ""
             - name: SSSD_WAIT_SEC
               value: "60"
-            - name: ADAPTER_BIN
-              value: "/app/scow-slurm-adapter-amd64"
+            # login 镜像 entrypoint 固定启动 /app/scow-slurm-adapter-amd64；仅 scow-slurm-adapter-sssd:local 需 ADAPTER_BIN 时再添加。
             - name: SLURM_CONF
               value: /etc/slurm/slurm.conf
             - name: RUNTIME_DIRECTORY
               value: /run/slurm
+          envFrom:
+            - secretRef:
+                name: scow-slurm-adapter-env
+                optional: false
           ports:
             - name: grpc
               containerPort: 8972
@@ -62,10 +72,6 @@ spec:
               mountPath: /var/lib/sss/mc
             - name: sssd-log
               mountPath: /var/log/sssd
-            # 适配器按 CWD=/app 读取 config/config.yaml（见 PKUHPC scow-slurm-adapter 部署文档）
-            - name: adapter-config
-              mountPath: /app/config
-              readOnly: true
             - name: slurm-files
               mountPath: /etc/slurm/slurm.conf
               subPath: slurm.conf
@@ -102,9 +108,6 @@ spec:
           emptyDir: {}
         - name: sssd-log
           emptyDir: {}
-        - name: adapter-config
-          configMap:
-            name: scow-slurm-adapter-config
         - name: slurm-files
           secret:
             secretName: scow-slurm-adapter-slurm
